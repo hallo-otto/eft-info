@@ -4,13 +4,6 @@ import justetf_scraping  # ← stelle sicher, dass dieses Modul verfügbar ist
 import numpy as np
 
 # ETFs: ISIN → Anzeigename
-"""
-etfs = {
-    "IE00BK5BQT80": "Vanguard All-World",
-    "IE00B4L5Y983": "iShares MSCI World",
-    "IE00BTJRMP35": "Xtrackers Emerging Markets"
-}
-"""
 etfs = {
     "DE0005190003": "BAY.MOTOREN WERKE AG ST",
     "IE00B43HR379": "ISHSV-S+P500H.CA.SECT.DLA",
@@ -31,6 +24,7 @@ etfs = {
 # --- Eingaben ---
 # ----------------
 # letzten Tage
+"""
 input_days = input("Anzahl Tage (100*): ")
 if input_days=="":
    input_days="100"
@@ -43,13 +37,12 @@ except:
 input_type = input("Vergleich oder Absolut (v*/a): ").lower()
 if input_type == "":
    input_type = "v"
-
 """
 # Test
 input_days="100"
 last_days=float(input_days)
 input_type = "v"
-"""
+
 
 # Leeres DataFrame zur Zusammenführung
 comparison_df = pd.DataFrame()
