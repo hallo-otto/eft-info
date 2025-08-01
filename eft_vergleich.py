@@ -46,8 +46,8 @@ input_type = "v"
 
 
 # Leeres DataFrame zur Zusammenführung
-comparison_df = pd.DataFrame()
-
+#comparison_df = pd.DataFrame()
+stats = {}
 for isin, name in etfs.items():
     try:
       df = justetf_scraping.load_chart(isin)
@@ -70,16 +70,16 @@ for isin, name in etfs.items():
 
     # Normierte Performance (Startwert = 100)
     if input_type == "a":
-       df_filtered[name] = df_filtered["quote"]
+        stats[name] = df_filtered["quote"]
     else:
-       df_filtered[name] = df_filtered["quote"] / df_filtered["quote"].iloc[0] * 100
+        stats[name] = df_filtered["quote"] / df_filtered["quote"].iloc[0] * 100
 
     # Speichern
-	comparison_df[name] = df_filtered[name]
-    
-	# stats kannst du dann als DataFrame darstellen
-    stats_df = pd.DataFrame(stats).T
-    st.dataframe(stats_df)
+    #comparison_df[name] = df_filtered[name]
+
+# stats kannst du dann als DataFrame darstellen
+stats_df = pd.DataFrame(stats).T
+st.dataframe(stats_df)
 
 # Diagramm zeichnen
 fig, ax = plt.subplots(figsize=(12, 6))
