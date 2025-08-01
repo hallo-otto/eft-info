@@ -68,31 +68,16 @@ for isin, name in etfs.items():
         print(f"⚠️  Keine Daten im Zeitraum für {name}")
         continue
 
-    """
-    start_value = df.iloc[0]
-    end_value = df.iloc[-1]
-    n_days = (df.index[-1] - df.index[0]).days
-    # Performance gesamt
-    perf = (end_value / start_value - 1) * 100
-
-    # Annualisierte Rendite
-    annual_return = ((end_value / start_value) ** (365 / n_days) - 1) * 100
-
-    # Volatilität
-    daily_returns = df.pct_change().dropna()
-    volatility = daily_returns.std() * np.sqrt(252) * 100
-
-    # Speichern
-    comparison_df[name] = [perf, annual_return, volatility]
-    """
     # Normierte Performance (Startwert = 100)
     if input_type == "a":
        df_filtered[name] = df_filtered["quote"]
     else:
        df_filtered[name] = df_filtered["quote"] / df_filtered["quote"].iloc[0] * 100
 
-    #comparison_df[name] = df_filtered[name]
-    # stats kannst du dann als DataFrame darstellen
+    # Speichern
+	comparison_df[name] = df_filtered[name]
+    
+	# stats kannst du dann als DataFrame darstellen
     stats_df = pd.DataFrame(stats).T
     st.dataframe(stats_df)
 
