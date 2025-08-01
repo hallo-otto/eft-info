@@ -91,26 +91,26 @@ for isin, name in etfs.items():
     else:
        df_filtered[name] = df_filtered["quote"] / df_filtered["quote"].iloc[0] * 100
 
-    comparison_df[name] = df_filtered[name]
+    #comparison_df[name] = df_filtered[name]
+    # stats kannst du dann als DataFrame darstellen
+    stats_df = pd.DataFrame(stats).T
+    st.dataframe(stats_df)
 
 # Diagramm zeichnen
-if not comparison_df.empty:
-    fig, ax = plt.subplots(figsize=(12, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 
-    for col in comparison_df.columns:
-      ax.plot(comparison_df.index, comparison_df[col], label=col)
+for col in comparison_df.columns:
+    ax.plot(comparison_df.index, comparison_df[col], label=col)
 
-    if input_type == "a":
-      text_type = "Absolute"
-    else:
-      text_type = "Vergleich (normalisiert)"
-
-    ax.set_title(f"ETF-{text_type} – der letzten {input_days} Tage")
-    ax.set_xlabel("Datum")
-    ax.set_ylabel("Performance [%]")
-    ax.legend()
-    ax.grid(True)
-    fig.tight_layout()
-    #st.pyplot(fig)  # So wird das Matplotlib-Diagramm in Streamlit angezeigt
+if input_type == "a":
+   text_type = "Absolute"
 else:
-    print("❌ Keine Daten zum Anzeigen gefunden.")
+   text_type = "Vergleich (normalisiert)"
+
+ax.set_title(f"ETF-{text_type} – der letzten {input_days} Tage")
+ax.set_xlabel("Datum")
+ax.set_ylabel("Performance [%]")
+ax.legend()
+ax.grid(True)
+fig.tight_layout()
+
