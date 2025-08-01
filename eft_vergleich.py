@@ -24,7 +24,6 @@ etfs = {
 # ----------------
 # --- Eingaben ---
 # ----------------
-
 input_days = st.text_input("Anzahl Tage", value="100")
 last_days=float(input_days)
 
@@ -73,8 +72,8 @@ for isin, name in etfs.items():
     stats[name] = {'Performance [%]': round(performance, 2)}
 
 # Ausgabe der Kennzahlen
-stats_df = pd.DataFrame(stats).T
-st.dataframe(stats_df)
+#stats_df = pd.DataFrame(stats).T
+#st.dataframe(stats_df)
 
 # Plot
 fig, ax = plt.subplots(figsize=(12, 6))
