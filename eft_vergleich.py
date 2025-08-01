@@ -24,26 +24,19 @@ etfs = {
 # ----------------
 # --- Eingaben ---
 # ----------------
-# letzten Tage
-"""
-input_days = input("Anzahl Tage (100*): ")
-if input_days=="":
-   input_days="100"
 
-try:
-    last_days=float(input_days)
-except:
-    print("Das war keine Zahl")
-
-input_type = input("Vergleich oder Absolut (v*/a): ").lower()
-if input_type == "":
-   input_type = "v"
-"""
-# Test
-input_days="100"
+input_days = st.text_input("Anzahl Tage", value="100")
 last_days=float(input_days)
-input_type = "v"
 
+input_type_radio = st.radio(
+    "Vergleich/Absolut",
+    ["Vergleich", "Absolut"],
+    horizontal=True
+)
+if input_type_radio == "Absolut":
+   input_type = "a"
+else:
+   input_type = "v"
 
 # Leeres DataFrame zur Zusammenführung
 comparison_df = pd.DataFrame()
