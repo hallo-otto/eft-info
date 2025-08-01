@@ -64,6 +64,5 @@ urllib3==2.5.0
 watchdog==6.0.0
 yarl==1.20.1
 matplotlib
-matplotlib.pyplot
 pandas
 numpy
