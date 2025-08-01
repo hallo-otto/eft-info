@@ -46,19 +46,19 @@ input_type = "v"
 
 
 # Leeres DataFrame zur Zusammenführung
-#comparison_df = pd.DataFrame()
+comparison_df = pd.DataFrame()
 stats = {}
+
 for isin, name in etfs.items():
     try:
-      df = justetf_scraping.load_chart(isin)
-    except RuntimeError as e:
-      print(f"⚠️ Fehler bei ISIN {isin} {name}")
-      continue
+        df = justetf_scraping.load_chart(isin)
+    except RuntimeError:
+        print(f"⚠️ Fehler bei ISIN {isin} {name}")
+        continue
 
     df.index = pd.to_datetime(df.index)
     df = df.sort_index()
 
-    # Zeitraum: letzten 10 tage
     current_year = df.index.max()
     last_year = current_year - pd.DateOffset(days=last_days)
 
@@ -68,34 +68,31 @@ for isin, name in etfs.items():
         print(f"⚠️  Keine Daten im Zeitraum für {name}")
         continue
 
-    # Normierte Performance (Startwert = 100)
     if input_type == "a":
-        stats[name] = df_filtered["quote"]
+        quote = df_filtered["quote"]
     else:
-        stats[name] = df_filtered["quote"] / df_filtered["quote"].iloc[0] * 100
+        quote = df_filtered["quote"] / df_filtered["quote"].iloc[0] * 100
 
-    # Speichern
-    #comparison_df[name] = df_filtered[name]
+    comparison_df[name] = quote.astype(float)
 
-# stats kannst du dann als DataFrame darstellen
+    # Nur die Performance berechnen und speichern
+    performance = (quote.iloc[-1] / quote.iloc[0] - 1) * 100
+    stats[name] = {'Performance [%]': round(performance, 2)}
+
+# Ausgabe der Kennzahlen
 stats_df = pd.DataFrame(stats).T
 st.dataframe(stats_df)
 
-# Diagramm zeichnen
+# Plot
 fig, ax = plt.subplots(figsize=(12, 6))
-
 for col in comparison_df.columns:
     ax.plot(comparison_df.index, comparison_df[col], label=col)
 
-if input_type == "a":
-   text_type = "Absolute"
-else:
-   text_type = "Vergleich (normalisiert)"
-
-ax.set_title(f"ETF-{text_type} – der letzten {input_days} Tage")
+ax.set_title(f"ETF-{'Absolute' if input_type=='a' else 'Vergleich (normalisiert)'} – der letzten {last_days} Tage")
 ax.set_xlabel("Datum")
 ax.set_ylabel("Performance [%]")
 ax.legend()
 ax.grid(True)
 fig.tight_layout()
+st.pyplot(fig)
 
