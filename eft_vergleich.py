@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import justetf_scraping  # ← stelle sicher, dass dieses Modul verfügbar ist
+import streamlit as st
 import numpy as np
 
 # ETFs: ISIN → Anzeigename
@@ -94,20 +95,22 @@ for isin, name in etfs.items():
 
 # Diagramm zeichnen
 if not comparison_df.empty:
-    plt.figure(figsize=(12, 6))
-    for col in comparison_df.columns:
-        plt.plot(comparison_df.index, comparison_df[col], label=col)
+    fig, ax = plt.subplots(figsize=(12, 6))
 
-    if input_type=="a":
-       text_type = "Absolute"
+    for col in comparison_df.columns:
+      ax.plot(comparison_df.index, comparison_df[col], label=col)
+
+    if input_type == "a":
+      text_type = "Absolute"
     else:
-       text_type = "Vergleich (normalisiert)"
-    plt.title(f"ETF-{text_type} – der letzten {input_days} Tage")
-    plt.xlabel("Datum")
-    plt.ylabel("Performance [%]")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+      text_type = "Vergleich (normalisiert)"
+
+    ax.set_title(f"ETF-{text_type} – der letzten {input_days} Tage")
+    ax.set_xlabel("Datum")
+    ax.set_ylabel("Performance [%]")
+    ax.legend()
+    ax.grid(True)
+    fig.tight_layout()
+    #st.pyplot(fig)  # So wird das Matplotlib-Diagramm in Streamlit angezeigt
 else:
     print("❌ Keine Daten zum Anzeigen gefunden.")
