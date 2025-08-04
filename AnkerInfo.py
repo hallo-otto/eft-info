@@ -14,11 +14,13 @@ class AnkerSolixInfo:
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
-    await asyncio.sleep(1)  # Dummy async call
+    await asyncio.sleep(2)  # Dummy async call
+    await self.api.update_sites()
     await self.api.update_device_details()
     await self.api.update_device_energy()
 
-    items = list(self.api.sites.items())
+    xitem = self.api.sites.items()
+    items = list(xitem)
     if items:
       site, site_data = items[0]
 
@@ -65,7 +67,7 @@ class AnkerSolixInfo:
       st.markdown("<div style='font-size:15px;font-weight: bold;text-align: center;'>Energy Forecast</div>",  unsafe_allow_html=True)
       st.dataframe(ausgabe2)
 
-      solix.sites.clear()
+      self.api.sites.clear()
     else:
       st.warning("Keine Standorte verfügbar.")
 
@@ -84,3 +86,4 @@ if st.button("Anmelden"):
     st.success("Login erfolgreich!")
   except Exception as e:
     st.error(f"Anmeldefehler: {e}")
+
