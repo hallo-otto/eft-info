@@ -14,6 +14,7 @@ class AnkerSolixInfo:
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
+    # Du hast zu viele Anfragen in kurzer Zeit gesendet. Die API hat dich mit HTTP-Status 429 blockiert.
     await asyncio.sleep(2)  # Dummy async call
     await self.api.update_sites()
     await self.api.update_device_details()
