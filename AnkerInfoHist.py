@@ -70,9 +70,9 @@ class AnkerSolixInfo:
           d   = data[l]
           dl  = datetime.strptime(l, '%Y-%m-%d')
           arr = [[dl,
-                  round(float(d.get("battery_discharge")),0),
-                  round(float(d.get("home_usage")),0),
-                  round(float(d.get("solar_production")),0)
+                  round(float(d.get("battery_discharge")),2),
+                  round(float(d.get("home_usage")),2),
+                  round(float(d.get("solar_production")),2)
                 ]]
           werte.extend(arr)
       # Transponierte
