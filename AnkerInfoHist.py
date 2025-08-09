@@ -63,22 +63,7 @@ class AnkerSolixInfo:
           showProgress=True,
           fromFile=use_file,
       )
-      """
-      {'2025-08-02':
-          {'date': '2025-08-02',
-           'battery_discharge': '2.55',
-           'home_usage': '5.74',
-           'solar_production_pv1': '2.10',
-           'solar_production_pv2': '1.85',
-           'solar_production_pv3': '2.32',
-           'solar_production_pv4': '2.10',
-           'solar_production': '8.48'},
-        '2025-08-03': {'date': '2025-08-03', 'battery_discharge': '2.95', 'home_usage': '8.10', 'solar_production_pv1': '1.08', 'solar_production_pv2': '1.05', 'solar_production_pv3': '1.08', 'solar_production_pv4': '1.12', 'solar_production': '4.57'}, '2025-08-04': {'date': '2025-08-04', 'battery_discharge': '1.06', 'home_usage': '5.41', 'solar_production_pv1': '1.07', 'solar_production_pv2': '0.96', 'solar_production_pv3': '1.03', 'solar_production_pv4': '1.56', 'solar_production': '5.01'}, '2025-08-05': {'date': '2025-08-05', 'battery_discharge': '2.50', 'home_usage': '5.87', 'solar_production_pv1': '1.74', 'solar_production_pv2': '1.70', 'solar_production_pv3': '1.54', 'solar_production_pv4': '1.60', 'solar_production': '6.90'}, '2025-08-06': {'date': '2025-08-06', 'battery_discharge': '2.68', 'home_usage': '9.70', 'solar_production_pv1': '2.00', 'solar_production_pv2': '1.97', 'solar_production_pv3': '1.78', 'solar_production_pv4': '1.70', 'solar_production': '7.74'}}
-      """
-      #print(type(data))
-      #print(str(data))
-      #plot
-      #float(data[list(data)[1]].get("home_usage"))
+
       # Ausgabe
       werte = []
       for l in data:
@@ -92,10 +77,8 @@ class AnkerSolixInfo:
           werte.extend(arr)
       # Transponierte
       ausgabe = np.array(werte).T
-      #print(len(ausgabe))
 
       # Grafik erstellen
-      #plt.figure(figsize=(12,6))
       fig, ax = plt.subplots(figsize=(12, 6))
 
       ax.plot(ausgabe[0], ausgabe[1], label="battery_discharge")
@@ -106,10 +89,6 @@ class AnkerSolixInfo:
       ax.set_xlabel("Datum")
       #ax.set_xticks(rotation=45)
       ax.set_ylabel("Strom")
-      #plt.yticks(range(0,12)) # Y Achse sortieren
-
-      # Optional: Y-Achse ganzzahlig skalieren
-      #plt.gca().yaxis.get_major_locator().set_params(integer=True)
 
       # Titel
       ax.set_title("Solaranlage")
@@ -121,7 +100,6 @@ class AnkerSolixInfo:
       ax.grid(True)
 
       # Grafik anzeigen
-      #plt.show()
       fig.tight_layout()
       st.pyplot(fig)
 
