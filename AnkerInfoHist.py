@@ -18,76 +18,45 @@ class AnkerSolixInfo:
     self.session = session
     self.api = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
 
-  async def hist(self, site_data):
-      # Historische Daten
+  async def energy_analysis_raw(self, siteId, deviceSn, startday, endday, dayTotals, deviceType):
+    # "device_type": ["solar_production", "solarbank", "home_usage", "grid"]
+    path = "power_service/v1/site/energy_analysis"
+    payload = {
+      "site_id": siteId,
+      "device_sn": deviceSn,
+      "start_time": startday,
+      "end_time": endday,
+      "device_type": deviceType,
+      "dayTotals":dayTotals,
+      "type": "week",
+    }
 
-      """
-      Bedeutung der Werte:
-      ACCOUNT: Das Nutzerkonto, über das die API-Session läuft.
-      SYSTEM: Das „Power System“ (bzw. „Site“) wie es in der Anker-App definiert ist.
-      VIRTUAL: Wird für virtuelle Systeme verwendet — z. B. bei Einzelgeräten wie Solaranlagen oder Wechselrichtern, die keinem realen System zugeordnet sind.
-      SOLARBANK: Ein Solarbank-Gerät (z. B. Solarbank E1600, Pro, Plus, 2 AC, 3 E2700 etc.)
-      INVERTER: Wechselrichter (Standalone oder im System) wie MI60 oder MI80
-      SMARTMETER: Smart Meter (z. B. Anker 3-Phase WiFi, Shelly 3EM) für Verbrauchsmessung
-      SMARTPLUG: Anker Smart Plug (z. B. 2500 W) – einfache Steuerung möglich
-      POWERPANEL: Power Panels (z. B. für SOLIX F3800; derzeit nur Basisüberwachung)
-      HES: Home Energy Systems (HES) wie SOLIX X1 Energy-Module oder Batteriesysteme
-      """
+    raw = await self.api.apisession.request("POST", path, json=payload)
+    return raw
 
-      siteId   = site_data.get("site_id")
-      site_id  = siteId
-      devices  = list(self.api.devices)
-      deviceSn = devices[0]
-
-      # Datumsbereich
-      #startday = datetime.strptime("2025-07-01", "%Y-%m-%d")  # String → datetime
-      #numdays = 20
-      dat     = date.today() - timedelta(days=self.numdays)
-      startday = datetime.strptime(str(dat), "%Y-%m-%d")  # String → datetime
-      daytotals=False
-      use_file=False
-
-      data = await self.api.energy_daily(
-          siteId=site_id,
-          deviceSn=deviceSn,
-          startDay=startday,
-          numDays=self.numdays,
-          dayTotals=daytotals,
-          devTypes={
-            SolixDeviceType.INVERTER.value,
-            SolixDeviceType.SOLARBANK.value,
-            SolixDeviceType.SMARTMETER.value,
-            SolixDeviceType.POWERPANEL.value,
-            SolixDeviceType.HES.value,
-          },
-          showProgress=True,
-          fromFile=use_file,
-      )
-
+  async def ausgabe_graph(self, data):
       # Ausgabe
       werte = []
-      for l in data:
-          d   = data[l]
-          dl  = datetime.strptime(l, '%Y-%m-%d')
-          arr = [[dl,
-                  round(float(d.get("battery_discharge")),2),
-                  round(float(d.get("home_usage")),2),
-                  round(float(d.get("solar_production")),2)
-                ]]
-          werte.extend(arr)
-      # Transponierte
-      ausgabe = np.array(werte).T
+      for d in data:
+        dd = d.get("data")
+
+        arr_dd = []
+        arr_ww = []
+        for w in dd:
+            arr_dd.extend([datetime.strptime(w.get("time"), '%Y-%m-%d')])
+            arr_ww.extend([round(float(w.get("value")), 2)])
+
+        werte.extend([[d.get("type"),arr_dd, arr_ww]])
 
       # Grafik erstellen
       fig, ax = plt.subplots(figsize=(12, 6))
 
-      ax.plot(ausgabe[0], ausgabe[1], label="battery_discharge")
-      ax.plot(ausgabe[0], ausgabe[2], label="home_usage")
-      ax.plot(ausgabe[0], ausgabe[3], label="solar_production")
+      for w in werte:
+          ax.plot(w[1], w[2], label=w[0])
 
       # Achsenbeschriftung
       ax.set_xlabel("Datum")
-      #ax.set_xticks(rotation=45)
+      # ax.set_xticks(rotation=45)
       ax.set_ylabel("Strom")
 
       # Titel
@@ -102,6 +71,34 @@ class AnkerSolixInfo:
       # Grafik anzeigen
       fig.tight_layout()
       st.pyplot(fig)
+
+  async def hist(self, site_data):
+      # Historische Daten
+      siteId    = site_data.get("site_id")
+      site_id   = siteId
+      devices   = list(self.api.devices)
+      deviceSn  = devices[0]
+      numDays   = self.numdays
+
+      # Datumsbereich
+      dat       = (date.today() - timedelta(days=1))
+      startDay  = (dat          - timedelta(days=numDays)).strftime("%Y-%m-%d")
+      endDay    = dat.strftime("%Y-%m-%d")
+      dayTotals = "false"
+
+      # "device_type": ["solar_production", "solarbank", "home_usage", "grid"]
+      data = []
+      data_solar_production = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "solar_production")
+      data_solarbank        = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "solarbank")
+      data_home_usage       = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "home_usage")
+      data_grid             = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "grid")
+
+      data.extend([{"type" : "solar_production", "data":  data_solar_production.get("data").get("power")}])
+      data.extend([{"type" : "solarbank", "data":  data_solarbank.get("data").get("power")}])
+      data.extend([{"type" : "home_usage", "data": data_home_usage.get("data").get("power")}])
+      data.extend([{"type" : "grid", "data":  data_grid.get("data").get("power")}])
+
+      await self.ausgabe_graph(data)
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
@@ -135,8 +132,7 @@ async def create_session_and_update(user, pw, country, numdays):
     a = AnkerSolixInfo(user, pw, country, numdays, session)
     await a.update_sites()
 
-#asyncio.run(create_session_and_update("hallo.otto123.oo@gmail.com", "Anker3.oo#196", "DE"))
-
+#asyncio.run(create_session_and_update("hallo.otto123.oo@gmail.com", "Anker3.oo#196", "DE",2))
 user     = st.text_input("User")
 pw       = st.text_input("Passwort", type="password")
 country  = "DE"
@@ -153,4 +149,3 @@ if st.button("Anmelden"):
     st.success("Login erfolgreich!")
   except Exception as e:
     st.error(f"Anmeldefehler: {e}")
-
