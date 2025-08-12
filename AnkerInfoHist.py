@@ -92,14 +92,14 @@ class AnkerSolixInfo:
       resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "solar_production")
       data.extend([{"type": "solar production", "color": "#84bd00", "data": resp.get("data").get("power")}])
 
+      resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "home_usage")
+      data.extend([{"type": "home usage", "color": "#0085ad", "data": resp.get("data").get("power")}])
+
       resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "solarbank")
       data.extend([{"type": 'solarbank', "color": "#e1e000", "data": resp.get("data").get("power")}])
 
       #resp = await self.energy_analysis_raw(siteId, deviceSn2, startDay, endDay, dayTotals, "hes")
       #data.extend([{"type": "hes", "color": "#ffcc99", "data": resp.get("data").get("power")}])
-
-      resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "home_usage")
-      data.extend([{"type": "home usage", "color": "#0085ad", "data": resp.get("data").get("power")}])
 
       resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "grid")
       data.extend([{"type": "grid export", "color": "#e4002b", "data": resp.get("data").get("power")}])
