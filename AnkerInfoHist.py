@@ -19,20 +19,19 @@ class AnkerSolixInfo:
     self.api = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
 
   async def energy_analysis_raw(self, siteId, deviceSn, startday, endday, dayTotals, deviceType):
-    # "device_type": ["solar_production", "solarbank", "home_usage", "grid"]
-    path = "power_service/v1/site/energy_analysis"
+    endpoint = "power_service/v1/site/energy_analysis"
     payload = {
       "site_id": siteId,
-      "device_sn": deviceSn,
-      "start_time": startday,
-      "end_time": endday,
-      "device_type": deviceType,
-      "dayTotals":dayTotals,
+      "device_sn": deviceSn,          # Solarbank
+      "start_time": startday,         # str: "2025-08-01"
+      "end_time": endday,             # str: "2025-08-12"
+      "device_type": deviceType,      # "solar_production", "solarbank", "home_usage", "grid"
+      "dayTotals":dayTotals,          #  "false" / "true"
       "type": "week",
     }
 
-    raw = await self.api.apisession.request("POST", path, json=payload)
-    return raw
+    resp = await self.api.apisession.request("POST", endpoint, json=payload)
+    return resp
 
   async def ausgabe_graph(self, data):
       # Ausgabe
@@ -46,13 +45,15 @@ class AnkerSolixInfo:
             arr_dd.extend([datetime.strptime(w.get("time"), '%Y-%m-%d')])
             arr_ww.extend([round(float(w.get("value")), 2)])
 
-        werte.extend([[d.get("type"),arr_dd, arr_ww]])
+        werte.extend([[d.get("type"),arr_dd, arr_ww, d.get("color")]])
 
       # Grafik erstellen
       fig, ax = plt.subplots(figsize=(12, 6))
 
       for w in werte:
-          ax.plot(w[1], w[2], label=w[0])
+          ax.plot(w[1], w[2], label=w[0], marker="o", linestyle="-", color=w[3])
+          for d, v in zip(w[1],w[2]):
+              ax.text(d, v + 0.2, f"{v}", ha="center", va="bottom", fontsize=10, color=w[3])
 
       # Achsenbeschriftung
       ax.set_xlabel("Datum")
@@ -75,9 +76,9 @@ class AnkerSolixInfo:
   async def hist(self, site_data):
       # Historische Daten
       siteId    = site_data.get("site_id")
-      site_id   = siteId
       devices   = list(self.api.devices)
-      deviceSn  = devices[0]
+      deviceSn1 = devices[0]
+      deviceSn2 = devices[1]
       numDays   = self.numdays
 
       # Datumsbereich
@@ -88,15 +89,20 @@ class AnkerSolixInfo:
 
       # "device_type": ["solar_production", "solarbank", "home_usage", "grid"]
       data = []
-      data_solar_production = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "solar_production")
-      data_solarbank        = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "solarbank")
-      data_home_usage       = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "home_usage")
-      data_grid             = await self.energy_analysis_raw(site_id, deviceSn, startDay,endDay, dayTotals, "grid")
+      resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "solar_production")
+      data.extend([{"type": "solar production", "color": "#84bd00", "data": resp.get("data").get("power")}])
 
-      data.extend([{"type" : "solar_production", "data":  data_solar_production.get("data").get("power")}])
-      data.extend([{"type" : "solarbank", "data":  data_solarbank.get("data").get("power")}])
-      data.extend([{"type" : "home_usage", "data": data_home_usage.get("data").get("power")}])
-      data.extend([{"type" : "grid", "data":  data_grid.get("data").get("power")}])
+      resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "solarbank")
+      data.extend([{"type": 'solarbank', "color": "#e1e000", "data": resp.get("data").get("power")}])
+
+      #resp = await self.energy_analysis_raw(siteId, deviceSn2, startDay, endDay, dayTotals, "hes")
+      #data.extend([{"type": "hes", "color": "#ffcc99", "data": resp.get("data").get("power")}])
+
+      resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "home_usage")
+      data.extend([{"type": "home usage", "color": "#0085ad", "data": resp.get("data").get("power")}])
+
+      resp = await self.energy_analysis_raw(siteId, deviceSn1, startDay, endDay, dayTotals, "grid")
+      data.extend([{"type": "grid export", "color": "#e4002b", "data": resp.get("data").get("power")}])
 
       await self.ausgabe_graph(data)
 
