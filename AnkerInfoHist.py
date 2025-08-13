@@ -2,9 +2,9 @@ import asyncio
 from aiolimiter import AsyncLimiter
 from aiohttp import ClientSession
 from api.api import AnkerSolixApi
+from api.apitypes import SolixDeviceType
 import streamlit as st
 from datetime import date, datetime, timedelta
-from api.apitypes import SolixDeviceType  # pylint: disable=no-name-in-module
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,16 +17,18 @@ class AnkerSolixInfo:
     self.numdays = numdays
     self.session = session
     self.api = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
+    #self.API_ENDPOINTS = SolixDeviceType.API_ENDPOINTS
 
   async def energy_analysis_raw(self, siteId, deviceSn, startday, endday, dayTotals, deviceType):
     endpoint = "power_service/v1/site/energy_analysis"
+    #endpoint = self.API_ENDPOINTS["energy_analysis"]
     payload = {
       "site_id": siteId,
       "device_sn": deviceSn,          # Solarbank
       "start_time": startday,         # str: "2025-08-01"
       "end_time": endday,             # str: "2025-08-12"
       "device_type": deviceType,      # "solar_production", "solarbank", "home_usage", "grid"
-      "dayTotals":dayTotals,          #  "false" / "true"
+      "dayTotals":dayTotals,          # "false" / "true"
       "type": "week",
     }
 
@@ -35,17 +37,28 @@ class AnkerSolixInfo:
 
   async def ausgabe_graph(self, data):
       # Ausgabe
-      werte = []
+      werte     = []
+      arr_type  = []
+      arr_sum   = []
+      arr_color = []
       for d in data:
         dd = d.get("data")
 
-        arr_dd = []
-        arr_ww = []
+        arr_dd  = []
+        arr_ww  = []
+        d_sum   = 0
+        n       = 0
         for w in dd:
             arr_dd.extend([datetime.strptime(w.get("time"), '%Y-%m-%d')])
-            arr_ww.extend([round(float(w.get("value")), 2)])
+            val = float(w.get("value"))
+            arr_ww.extend([round(val, 2)])
+            d_sum += val
+            n = n + 1
 
-        werte.extend([[d.get("type"),arr_dd, arr_ww, d.get("color")]])
+        werte.extend([[d.get("type"),arr_dd, arr_ww, d.get("color"),round(d_sum,2)]])
+        arr_type.extend([d.get("type")])
+        arr_color.extend([d.get("color")])
+        arr_sum.extend([d_sum])
 
       # Grafik erstellen
       fig, ax = plt.subplots(figsize=(12, 6))
@@ -58,18 +71,30 @@ class AnkerSolixInfo:
       # Achsenbeschriftung
       ax.set_xlabel("Datum")
       # ax.set_xticks(rotation=45)
-      ax.set_ylabel("Strom")
-
+      ax.set_ylabel("kWh")
       # Titel
       ax.set_title("Solaranlage")
-
       # Legende anzeigen
       ax.legend()
-
       # Raster aktivieren
       ax.grid(True)
-
       # Grafik anzeigen
+      fig.tight_layout()
+      st.pyplot(fig)
+
+      # Summe
+      fig, ax = plt.subplots(figsize=(12, 6))
+      bars = ax.bar(arr_type, arr_sum, color=arr_color)
+      # Beschriftungen über den Balken
+      for bar in bars:
+          y = round(bar.get_height(),2)
+          plt.text(bar.get_x() + bar.get_width() / 2, y + 2, f'{y}', ha='center', va='bottom')
+
+      ax.set_title(f"Solaranlage Summe ({n})")
+      ax.legend()
+      ax.grid(True)
+      ax.set_xlabel("Type")
+      ax.set_ylabel("kWh")
       fig.tight_layout()
       st.pyplot(fig)
 
