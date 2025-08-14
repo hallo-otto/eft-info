@@ -29,7 +29,7 @@ class AnkerSolixInfo:
       "start_time": startday,         # str: "2025-08-01"
       "end_time": endday,             # str: "2025-08-12"
       "device_type": deviceType,      # "solar_production", "solarbank", "home_usage", "grid"
-      "dayTotals":dayTotals,          # "false" / "true"
+      #"dayTotals":dayTotals,          # "false" / "true"
       "type": "week",
     }
 
@@ -47,18 +47,20 @@ class AnkerSolixInfo:
 
         arr_dd  = []
         arr_ww  = []
-        arr_27  = []
+        arr_th  = []
         d_sum   = 0
         n       = 0
-        anz_27  = 0
+        # Überstromgrenze
+        anz_th  = 0
+        th      = -1.8
         for w in dd:
             val = float(w.get("value"))
             arr_dd.extend([datetime.strptime(w.get("time"), '%Y-%m-%d')])
             arr_ww.extend([round(val, 2)])
-            arr_27.extend([-2.7])
+            arr_th.extend([th])
             # wie oft wird 2.7kWh Einspeisung überschtritten
-            if d.get("type") == "grid export" and val <= -2.7:
-                anz_27 += 1
+            if d.get("type") == "grid export" and val <= th:
+                anz_th += 1
 
             d_sum += val
             n = n + 1
@@ -73,16 +75,20 @@ class AnkerSolixInfo:
 
       for w in werte:
           ax.plot(w[1], w[2], label=w[0], marker="o", linestyle="-", color=w[3])
-          for d, v in zip(w[1],w[2]):
-              ax.text(d, v + 0.2, f"{v}", ha="center", va="bottom", fontsize=12, color=w[3])
-      plt.plot(w[1], arr_27, label="2,7kWh", linestyle="-", color="#ffcc99", linewidth=3)
+          for dd, v in zip(w[1],w[2]):
+              color = w[3]
+              # Markiering, wenn der Schwellwert unterschritten wurde
+              if d.get("type") == "grid export" and v <= th:
+                  color="#84bd00"
+              ax.text(dd, v + 0.2, f"{v}", ha="center", va="bottom", fontsize=12, color=color)
+      plt.plot(w[1], arr_th, label=str(th) + "kWh", linestyle="-", color="#ffcc99", linewidth=3)
 
       if n <= 25:
          rot=0
       else:
          rot=15
       ax.tick_params(axis='x', labelsize=14, rotation=rot)  # Schriftgröße x-Achsenwerte
-      ax.tick_params(axis='y', labelsize=14)               # Schriftgröße y-Achsenwerte
+      ax.tick_params(axis='y', labelsize=14)                # Schriftgröße y-Achsenwerte
       # Achsenbeschriftung
       ax.set_xlabel("Datum",fontsize=14)
       ax.set_ylabel("kWh",fontsize=14)
@@ -100,9 +106,8 @@ class AnkerSolixInfo:
       fig.tight_layout()
       st.pyplot(fig)
       # Überschreitung 2.7kWk
-      prz = round(100 * anz_27 / n,2)
-      #st.write(f"    🔹Überschreitung 2,7 kWh der Einspeisung Tage: {anz_27} ({prz})%")
-      st.markdown(f"<p style='font-size:13px;padding-left:20px'>🔹Überschreitung Einspeisung 2,7 kWh Tage: {anz_27} ({prz}%)</p>", unsafe_allow_html=True)
+      prz = round(100 * anz_th / n,2)
+      st.markdown(f"<p style='font-size:13px;padding-left:20px'>🔹Überschreitung Einspeisung {th} kWh Tage: {anz_th} ({prz}%)</p>", unsafe_allow_html=True)
 
       # Durchscnitt
       fig, ax = plt.subplots(figsize=(12, 6))
