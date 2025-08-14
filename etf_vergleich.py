@@ -150,14 +150,16 @@ else:
         if input_type == "K":
           ind = comparison_df.index[-1]
           val = int(round(comparison_df[col][-1],0))
-          ax.text(ind, val + 0.2, f"{val}", ha="center", va="bottom")
+          ax.text(ind, val + 0.2, f"{val}", ha="center", va="bottom" ,fontsize=16)
 
     round_performance = round(performance,2)
     round_days        = round(last_days)
-    ax.set_title(f"ETF-{ylabel}  {round_performance} – der letzten {round_days } Tage")
-    ax.set_xlabel("Datum")
-    ax.set_ylabel(ylabel)
-    ax.legend(loc='upper left', bbox_to_anchor=(0, -0.10))
+    ax.set_title(f"ETF-{ylabel}  {round_performance} – der letzten {round_days } Tage",fontsize=18)
+    ax.tick_params(axis='x', labelsize=16)  # Schriftgröße x-Achsenwerte
+    ax.tick_params(axis='y', labelsize=16)  # Schriftgröße y-Achsenwerte
+    ax.set_xlabel("Datum",fontsize=16)
+    ax.set_ylabel(ylabel,fontsize=16)
+    ax.legend(loc='upper left', bbox_to_anchor=(0, -0.10),fontsize=18, ncol=2,)
     ax.grid(True)
     fig.tight_layout()
     st.pyplot(fig)
