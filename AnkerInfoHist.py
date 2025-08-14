@@ -1,13 +1,11 @@
 import asyncio
 
 import api.apitypes
-from aiolimiter import AsyncLimiter
 from aiohttp import ClientSession
 from api.api import AnkerSolixApi
 from api.apitypes import SolixDeviceType
 import streamlit as st
 from datetime import date, datetime, timedelta
-import numpy as np
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
@@ -79,11 +77,14 @@ class AnkerSolixInfo:
               ax.text(d, v + 0.2, f"{v}", ha="center", va="bottom", fontsize=12, color=w[3])
       plt.plot(w[1], arr_27, label="2,7kWh", linestyle="-", color="#ffcc99", linewidth=3)
 
-      ax.tick_params(axis='x', labelsize=14)  # Schriftgröße x-Achsenwerte
-      ax.tick_params(axis='y', labelsize=14)  # Schriftgröße y-Achsenwerte
+      if n <= 25:
+         rot=0
+      else:
+         rot=15
+      ax.tick_params(axis='x', labelsize=14, rotation=rot)  # Schriftgröße x-Achsenwerte
+      ax.tick_params(axis='y', labelsize=14)               # Schriftgröße y-Achsenwerte
       # Achsenbeschriftung
       ax.set_xlabel("Datum",fontsize=14)
-      # ax.set_xticks(rotation=45)
       ax.set_ylabel("kWh",fontsize=14)
       # Titel
       ax.set_title("Solaranlage",fontsize=16)
@@ -131,7 +132,7 @@ class AnkerSolixInfo:
 
       # Datumsbereich
       dat       = (date.today() - timedelta(days=1))
-      startDay  = (dat          - timedelta(days=numDays)).strftime("%Y-%m-%d")
+      startDay  = (dat          - timedelta(days=numDays-1)).strftime("%Y-%m-%d")
       if startDay < "2025-07-11":
         startDay = "2025-07-11"
       endDay    = dat.strftime("%Y-%m-%d")
@@ -168,16 +169,7 @@ class AnkerSolixInfo:
     items = list(xitem)
     if items:
       site, site_data = items[0]
-
-      #limiter = AsyncLimiter(max_rate=10, time_period=60)  # 5 Anfragen pro Sekunde
-      #try:
-      #  async with limiter:
-      #    await self.hist(site_data)
-      #except Exception as e:
-      #  print(f"Error: {e}")
-
       await self.hist(site_data)
-
       self.api.sites.clear()
     else:
        st.warning("Keine Standorte verfügbar.")
