@@ -42,12 +42,14 @@ etfs = {
 input_days = st.text_input("Anzahl Tage", value="100")
 last_days=float(input_days)
 
+#["Performance", "Annualisierte Rendite", "Volatilität","Maximaler Drawdown","Fehler Liste"],
 input_type_radio = st.radio(
     "Kennzahl",
-    ["Performance", "Annualisierte Rendite", "Volatilität","Maximaler Drawdown","Fehler Liste"],
+    ["Kurs", "Performance", "Volatilität","Fehler Liste"],
     horizontal=True
 )
 input_type = input_type_radio[0]
+#input_type = "K"
 
 # Leeres DataFrame zur Zusammenführung
 comparison_df = pd.DataFrame()
@@ -56,14 +58,6 @@ fehler_isin = []
 
 for isin, name in etfs.items():
     try:
-      """
-        if isin =="LU0323578657":
-           #https: // www.flossbachvonstorch.de / de / investmentfonds / fonds / LU0323578657  # historische_daten/Fondsdetails - Flossbach von Storch.csv
-           url = "https://www.flossbachvonstorch.de/files/FvS_DE/documents/fund-prices/LU0323578657_price.xls"
-
-           df = load_fvs_data(url)
-        else:
-      """
       df = justetf_scraping.load_chart(isin)
     except RuntimeError:
       print(f"⚠️ Fehler bei ISIN {isin} {name}")
@@ -83,7 +77,14 @@ for isin, name in etfs.items():
         print(f"⚠️  Keine Daten im Zeitraum für {name}")
         continue
 
-    if input_type == "P":
+    if input_type == "K":
+        series = df_filtered["quote"]
+        start_value = series.iloc[0]
+        end_value = series.iloc[-1]
+        quote = series
+        performance = (end_value / start_value - 1) * 100
+        ylabel = "Kurs"
+    elif input_type == "P":
         series      = df_filtered["quote"]
         start_value = series.iloc[0]
         end_value   = series.iloc[-1]
@@ -138,19 +139,25 @@ if input_type == "F":
 else:
     comparison_df[name] = quote.astype(float)
     stats[name] = {ylabel : round(performance, 2)}
-
+    #st.write(comparison_df.index)
     # Plot
-    fig, ax = plt.subplots(figsize=(12, 6))
+    # figsize=(9, 6) ist die Figur 9 Zoll breit und 6 Zoll hoch.
+    fig, ax = plt.subplots(figsize=(16, 10))
     for col in comparison_df.columns:
         ax.plot(comparison_df.index, comparison_df[col], label=col)
+        #ax.set_ylim(0, 200)  # engerer Bereich
+        # letzen Wert ausgeben
+        if input_type == "K":
+          ind = comparison_df.index[-1]
+          val = int(round(comparison_df[col][-1],0))
+          ax.text(ind, val + 0.2, f"{val}", ha="center", va="bottom")
 
     round_performance = round(performance,2)
     round_days        = round(last_days)
     ax.set_title(f"ETF-{ylabel}  {round_performance} – der letzten {round_days } Tage")
     ax.set_xlabel("Datum")
     ax.set_ylabel(ylabel)
-    ax.legend()
+    ax.legend(loc='upper left', bbox_to_anchor=(0, -0.10))
     ax.grid(True)
     fig.tight_layout()
     st.pyplot(fig)
-
