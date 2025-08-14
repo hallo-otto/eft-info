@@ -115,7 +115,11 @@ class AnkerSolixInfo:
       # Beschriftungen über den Balken
       for bar in bars:
           y = round(bar.get_height(),2)
-          plt.text(bar.get_x() + bar.get_width() / 2, y + 0.1, f'{y}', ha='center', va='bottom',fontsize=12)
+          yb = y+0.1
+          if y < 0 :
+             yb = 0.1
+
+          plt.text(bar.get_x() + bar.get_width() / 2, yb, f'{y}', ha='center', va='bottom',fontsize=12)
 
       ax.set_title(f"Solaranlage Durchscnitt ({n})",fontsize=13)
       ax.legend()
