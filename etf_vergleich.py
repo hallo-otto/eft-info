@@ -56,18 +56,20 @@ fehler_isin = []
 
 for isin, name in etfs.items():
     try:
+      """
         if isin =="LU0323578657":
            #https: // www.flossbachvonstorch.de / de / investmentfonds / fonds / LU0323578657  # historische_daten/Fondsdetails - Flossbach von Storch.csv
            url = "https://www.flossbachvonstorch.de/files/FvS_DE/documents/fund-prices/LU0323578657_price.xls"
 
            df = load_fvs_data(url)
         else:
-           df = justetf_scraping.load_chart(isin)
+      """
+      df = justetf_scraping.load_chart(isin)
     except RuntimeError:
-        print(f"⚠️ Fehler bei ISIN {isin} {name}")
-        arr = [[isin,name]]
-        fehler_isin.extend(arr)
-        continue
+      print(f"⚠️ Fehler bei ISIN {isin} {name}")
+      arr = [[isin,name]]
+      fehler_isin.extend(arr)
+      continue
 
     df.index = pd.to_datetime(df.index)
     df = df.sort_index()
@@ -82,26 +84,26 @@ for isin, name in etfs.items():
         continue
 
     if input_type == "P":
-        series = df_filtered["quote"]
+        series      = df_filtered["quote"]
         start_value = series.iloc[0]
-        end_value = series.iloc[-1]
+        end_value   = series.iloc[-1]
         quote = series / start_value * 100
         performance = (end_value / start_value - 1) * 100
-        ylabel  = "Performance [%]"
+        ylabel = "Performance [%]"
     elif input_type == "A":
         series = df_filtered["quote_with_reinvested_dividends"]
         start_value = series.iloc[0]
-        end_value = series.iloc[-1]
+        end_value   = series.iloc[-1]
         n_days = (series.index[-1] - series.index[0]).days
         # Berechne für jeden Tag die annualisierte Rendite seit Start
-        quote = (series / start_value) ** (365 / (n_days + 1)) - 1
+        quote       = (series / start_value) ** (365 / (n_days + 1)) - 1
         performance = ((end_value / start_value) ** (365 / n_days) - 1) * 100
         ylabel = "Annualisierte Rendite"
     elif input_type == "V":
         # Bereite die Preisreihe vor (z. B. Total Return Kurs)
-        series = df_filtered["quote_with_reinvested_dividends"]
+        series      = df_filtered["quote_with_reinvested_dividends"]
         start_value = series.iloc[0]
-        end_value = series.iloc[-1]
+        end_value   = series.iloc[-1]
         n_days = (series.index[-1] - series.index[0]).days
 
         # Berechne tägliche logarithmische Renditen .dropna() für NaN
