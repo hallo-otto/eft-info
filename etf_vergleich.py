@@ -11,6 +11,8 @@ import pdb
 class ETFVergleich:
   def __init__(self,last_days, input_type):
     self.etfs = {
+      "FR0010655712": "Amundi DAX UCITS ETF DR (V)",
+      "IE00BD4TXV59": "UBS Core MSCI World UCITS (V)",
       "DE0005190003": "BAY.MOTOREN WERKE AG ST",
       "IE00B43HR379": "ISHSV-S+P500H.CA.SECT.DLA",
       "IE00BMYDM794": "LGUE-HYDR.ECO. DLA",
@@ -25,9 +27,6 @@ class ETFVergleich:
       "LU0323578657": "FLOSSB.V.STORCH-MUL.OPP.R",
       "DE000SH9VRM6": "SGIS AKTANL PL 24/26 NVDA"
     }
-    #self.etfs = {
-    #  "LU2611732046": "AIS AMUNDI DAX ETF DIST"
-    #}
 
     self.last_days  = last_days
     self.input_type = input_type
@@ -42,11 +41,13 @@ class ETFVergleich:
       return self.etfs
 
   # ETF Durchlauf
-  async def etf_read(self, choice):
+  async def etf_read(self, selected):
     n = 0
+    #st.write(f"  selected {type(selected)} {selected}")
     for isin, name in self.etfs.items():
-        if (isin != choice and choice != "Alle"):
-            #st.write(f" continue{choice} {isin}: {name}")
+        suche = f"{isin} – {name}"
+        #if (suche in selected):
+        if (suche not in selected and "Alle" not in selected):
             continue
 
         try:
@@ -133,8 +134,10 @@ class ETFVergleich:
     # Ausgabe Grafik
     else:
       fig, ax = plt.subplots(figsize=(16, 10))
+      max_len = 0
       for col in self.df_comparison.columns:
-          label = f"{col} - {self.etfs[col]}"
+          label   = f"{col} - {self.etfs[col]}"
+          max_len = max(max_len, len(label))
           ax.plot(self.df_comparison.index, self.df_comparison[col], label=label)
           # ax.set_ylim(0, 200)  # engerer Bereich
           # letzen Wert ausgeben
@@ -157,10 +160,16 @@ class ETFVergleich:
       ax.set_ylabel(self.title, fontsize=16)
       iv = math.ceil(self.last_days/15)
       ax.xaxis.set_major_locator(mdates.DayLocator(interval=iv))
-      ax.legend(loc='upper left', bbox_to_anchor=(0, -0.10), fontsize=18, ncol=2, )
+      # st.write(max_len)
+      ncol=2
+      if max_len >= 40:
+         ncol=1
+      ax.legend(loc='upper left', bbox_to_anchor=(0, -0.10), fontsize=18, ncol=ncol)
       ax.grid(True)
-      fig.tight_layout()
+      #fig.tight_layout()
+      plt.tight_layout()
       st.pyplot(fig)
+
 
 async def create_session(last_days, input_type):
     e = ETFVergleich(last_days, input_type)
@@ -168,11 +177,13 @@ async def create_session(last_days, input_type):
     # Streamlit Selectbox mit voreingestelltem Wert
     keys = [f"{k} – {v}" for k, v in etf_list.items()]
     keys.insert(0,"Alle")
-    choice = st.selectbox("Wähle einen ETF:", keys, index=0)
+    selected = st.multiselect("Wähle einen ETF:", keys)
 
+    #st.button("Programm starten")
     # Ausgabe
     #st.write(f"Du hast gewählt: {choice[:12]}")
-    await e.etf_read(choice[:12])
+    if len(selected) > 0:
+       await e.etf_read(selected)
 
 #asyncio.run(create_session(100,"R"))
 # ----------------
