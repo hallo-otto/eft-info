@@ -28,7 +28,7 @@ class ETFVergleich:
     #self.etfs = {
     #  "LU2611732046": "AIS AMUNDI DAX ETF DIST"
     #}
-    
+
     self.last_days  = last_days
     self.input_type = input_type
 
@@ -38,10 +38,15 @@ class ETFVergleich:
     self.fehler_isin   = []
     self.title         = ""
 
+  def getEtfList(self):
+      return self.etfs
+
   # ETF Durchlauf
-  async def etf_read(self):
+  async def etf_read(self, choice):
 
     for isin, name in self.etfs.items():
+        if (isin != choice and choice != "Alle"):
+            continue
         try:
             df = justetf_scraping.load_chart(isin)
             # Datumsbereich
@@ -124,7 +129,8 @@ class ETFVergleich:
     else:
       fig, ax = plt.subplots(figsize=(16, 10))
       for col in self.df_comparison.columns:
-          ax.plot(self.df_comparison.index, self.df_comparison[col], label=col)
+          label = f"{col} - {self.etfs[col]}"
+          ax.plot(self.df_comparison.index, self.df_comparison[col], label=label)
           # ax.set_ylim(0, 200)  # engerer Bereich
           # letzen Wert ausgeben
           if input_type == "K":
@@ -152,9 +158,16 @@ class ETFVergleich:
       st.pyplot(fig)
 
 async def create_session(last_days, input_type):
-    #st.write("Ausgewählt:", input_type)
     e = ETFVergleich(last_days, input_type)
-    await e.etf_read()
+    etf_list = e.getEtfList()
+    # Streamlit Selectbox mit voreingestelltem Wert
+    keys = [f"{k} – {v}" for k, v in etf_list.items()]
+    keys.insert(0,"Alle")
+    choice = st.selectbox("Wähle einen ETF1:", keys, index=0)
+
+    # Ausgabe
+    #st.write(f"Du hast gewählt: {choice[:12]}")
+    await e.etf_read(choice[:12])
 
 #asyncio.run(create_session(100,"R"))
 # ----------------
