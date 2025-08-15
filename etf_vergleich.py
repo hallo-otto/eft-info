@@ -43,10 +43,12 @@ class ETFVergleich:
 
   # ETF Durchlauf
   async def etf_read(self, choice):
-
+    n = 0
     for isin, name in self.etfs.items():
         if (isin != choice and choice != "Alle"):
+            #st.write(f" continue{choice} {isin}: {name}")
             continue
+
         try:
             df = justetf_scraping.load_chart(isin)
             # Datumsbereich
@@ -61,6 +63,7 @@ class ETFVergleich:
             df_sort  = df_filtered.sort_index()
             # Berechnen der Quote
             await self.etf_quote(isin, name, df_sort)
+            n += 1
         except RuntimeError:
             #st.write(f"⚠️ Fehler bei ISIN {isin} {name}")
             arr = [[isin, name]]
@@ -68,6 +71,9 @@ class ETFVergleich:
             continue
 
     # Ausgabe
+    # kein justETF
+    if n == 0:
+       self.input_type = "F"
     await  self.etf_output()
 
   # Brechnen der Quoten und Performance
@@ -116,7 +122,6 @@ class ETFVergleich:
 
   # Ausgaben
   async def etf_output(self):
-    #st.write(f"etf_output: {self.input_type}")
     # Ausgabe der Fehlerliste
     if self.input_type == "F":
       # In DataFrame umwandeln (mit Spaltennamen)
@@ -163,7 +168,7 @@ async def create_session(last_days, input_type):
     # Streamlit Selectbox mit voreingestelltem Wert
     keys = [f"{k} – {v}" for k, v in etf_list.items()]
     keys.insert(0,"Alle")
-    choice = st.selectbox("Wähle einen ETF1:", keys, index=0)
+    choice = st.selectbox("Wähle einen ETF:", keys, index=0)
 
     # Ausgabe
     #st.write(f"Du hast gewählt: {choice[:12]}")
