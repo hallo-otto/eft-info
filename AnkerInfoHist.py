@@ -8,8 +8,9 @@ import streamlit as st
 from datetime import date, datetime, timedelta
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-
+import math
 # @st.cache_resource
+
 class AnkerSolixInfo:
   def __init__(self, user, pw, country, numdays, session):
     self.user = user
@@ -18,11 +19,14 @@ class AnkerSolixInfo:
     self.numdays = numdays
     self.session = session
     self.api = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
-    self.API_ENDPOINTS = api.apitypes.API_ENDPOINTS
+    #self.API_ENDPOINTS = api.apitypes.API_ENDPOINTS
 
   async def energy_analysis_raw(self, siteId, deviceSn, startday, endday, dayTotals, deviceType):
     #endpoint = "power_service/v1/site/energy_analysis"
-    endpoint = self.API_ENDPOINTS["energy_analysis"]
+    #endpoint = self.API_ENDPOINTS["energy_analysis"]
+    endpoint = api.apitypes.API_ENDPOINTS["energy_analysis"]
+    #st.write(f"endpoint: {endpoint}")
+
     payload = {
       "site_id": siteId,
       "device_sn": deviceSn,          # Solarbank
@@ -100,7 +104,7 @@ class AnkerSolixInfo:
       # Raster aktivieren
       ax.grid(True)
       # X-Achse enger beschriften: z. B. alle 3 Tage
-      iv = math.ceil(self.last_days / 15)
+      iv = math.ceil(self.numdays / 15)
       ax.xaxis.set_major_locator(mdates.DayLocator(interval=iv))
 
       # Grafik anzeigen
