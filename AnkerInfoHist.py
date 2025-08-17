@@ -104,7 +104,7 @@ class AnkerSolixInfo:
       # Raster aktivieren
       ax.grid(True)
       # X-Achse enger beschriften: z. B. alle 3 Tage
-      iv = math.ceil(self.numdays / 15)
+      iv = math.ceil(n / 15)
       ax.xaxis.set_major_locator(mdates.DayLocator(interval=iv))
 
       # Grafik anzeigen
