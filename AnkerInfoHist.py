@@ -194,8 +194,6 @@ async def create_session_and_update(user, pw, country, numdays):
     a = AnkerSolixInfo(user, pw, country, numdays, session)
     await a.update_sites()
 
-#asyncio.run(create_session_and_update("hallo.otto123.oo@gmail.com", "Anker3.oo#196", "DE",10))
-
 user     = st.text_input("User")
 pw       = st.text_input("Passwort", type="password")
 country  = "DE"
