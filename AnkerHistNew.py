@@ -20,11 +20,11 @@ class AnkerSolixInfo:
     self.country = country
     self.numdays = numdays
     self.session = session
-    self.data = []
-    self.ph1 = st.empty()
-    self.ph2 = st.empty()
-    self.ph3 = st.empty()
-    self.api = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
+    self.data    = []
+    self.ph1     = st.empty()
+    self.ph2     = st.empty()
+    self.ph3     = st.empty()
+    self.api     = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
@@ -84,7 +84,13 @@ class AnkerSolixInfo:
     self.ph2.empty()
     self.ph3.empty()
     graph_container = st.container()
+
     with graph_container:
+      if len(selected) == 0:
+          self.ph1.error("keine Kurve ausgewählt!")
+          self.ph2.write("")
+          self.ph3.write("")
+          return
       # Ausgabe
       werte = []
       arr_type = []
@@ -94,7 +100,7 @@ class AnkerSolixInfo:
       for d in self.data:
         dd = d.get("data")
         type = d["type"]
-        # nur Selektierte Grafiken
+        # Selektion Grafiken
         if type not in selected and "all" not in selected:
            continue
 
@@ -193,60 +199,62 @@ async def create_session_and_update(user, pw, country, numdays):
       a = AnkerSolixInfo(user, pw, country, numdays, session)
       # Async-Funktion synchron ausführen
       await a.update_sites()
-      await a.ausgabe_graph()
+      #await a.ausgabe_graph()
       return a
 
-# 🔁 Definition einer synchronen Wrapper-Funktion für Streamlit
-
+# 🔁 Definition einer synchronen Wrapper-Funktion für Streamlit, für multiselect
 def draw_graph():
   if "a" not in st.session_state:
     return
   a = st.session_state["a"]
   asyncio.run(a.ausgabe_graph())
 
-#asyncio.run(create_session_and_update("hallo.otto123.oo@gmail.com", "Anker3.oo#196", "DE",10))
 # --- Login-Status initialisieren (einmalig beim Start) ---
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-    st.write(f"logged_in {st.session_state.logged_in}")
 
 if "a" not in st.session_state:
     st.session_state.a = None
 
-st.write(f"Durchlauf {st.session_state.logged_in}")
 # Platzhalter nur für Diagramme
 if "ph1" not in st.session_state:
   st.session_state.ph1 = st.empty()
   st.session_state.ph2 = st.empty()
   st.session_state.ph3 = st.empty()
 
+# Kurven Auswahl, muss mit data.type übereinstimmen
 kurven = ["solar production", "home usage", "solarbank", "grid export"]
+# -------------
+# --- Start ---
+# -------------
 if not st.session_state.logged_in:
   user     = st.text_input("User")
   pw       = st.text_input("Passwort", type="password")
   country  = "DE"
-  numdaysx = st.text_input("Anzahl Tage", value="20")
+  numdaysx = st.text_input("Anzahl Tage", value="100")
 
   if numdaysx.isdigit():
       numdays = int(numdaysx)
   else:
       numdays = 10
 
-  st.multiselect(label="Kurve auswählen0:", options=kurven, default=kurven, key="selected_curves", on_change=draw_graph)
-
   if st.button("Anmelden"):
     try:
       a = asyncio.run(create_session_and_update(user, pw, country, numdays))
       st.session_state["a"] = a  # <--- WICHTIG: speichern
-      #st.success("Login erfolgreich!")
+      st.success("Login erfolgreich!")
       st.session_state.logged_in = True
+      # Neustart nach Anmeldung
+      st.rerun()
     except Exception as e:
       st.error(f"Anmeldefehler: {e}")
-  else:
-    st.write(f"Else user aussschalten {st.session_state.logged_in}")
 else:
+  # ----------------------
+  # --- Nach Anmeldung ---
+  # ----------------------
   st.multiselect(label="Kurve auswählen:",options=kurven,default=kurven,key="selected_curves",on_change=draw_graph)
-
+  a = st.session_state["a"]
+  asyncio.run(a.ausgabe_graph())
 
 
 
