@@ -26,7 +26,8 @@ class ETFVergleich:
       "LU0055631609": "BGF-WORLD GOLD A2DL",
       "LU0323578657": "FLOSSB.V.STORCH-MUL.OPP.R",
       "DE000SH9VRM6": "SGIS AKTANL PL 24/26 NVDA",
-      "IE0001UQQ933": "Kommer Fond"
+      "IE0001UQQ933": "Kommer Fond",
+      "IE00B6R52259": "iShare MSCI ACWI"
     }
 
     self.last_days  = last_days
