@@ -38,6 +38,11 @@ class ETFVergleichInteractive:
         self.last_days = last_days
         tasks = [asyncio.to_thread(self._load_single_etf, isin, meta) for isin, meta in self.etfs.items()]
         await asyncio.gather(*tasks)
+        # Sortieren
+        self.etfs_sorted = sorted(
+          self.etfs.items(),
+          key=lambda item: (-item[1]["performance"], item[1]["name"])
+        )
 
     def _load_single_etf(self, isin, meta):
         try:
@@ -67,14 +72,14 @@ class ETFVergleichInteractive:
         self.input_type = mapping[input_type]
 
         # Auswahl ETFs
-        options = [f"{isin} – {meta['name']}" for isin, meta in self.etfs.items()]
+        options = [f"{isin} – {meta['name']}" for isin, meta in self.etfs_sorted]
         options.insert(0, "Alle")
         selected = st.multiselect("Wähle ETFs:", options, default="Alle")
         return selected
 
     async def etf_read(self, selected):
         self.df_comparison = pd.DataFrame()
-        for isin, meta in self.etfs.items():
+        for isin, meta in self.etfs_sorted:
             if meta["df"] is None:
                 continue
             if "Alle" not in selected and f"{isin} – {meta['name']}" not in selected:
@@ -105,8 +110,10 @@ class ETFVergleichInteractive:
 
         # Interaktive Plotly Grafik
         fig = go.Figure()
+
         for isin in self.df_comparison.columns:
             name = self.etfs[isin]["name"]
+            self.df_comparison[isin] = self.df_comparison[isin].round(2)
             fig.add_trace(go.Scatter(
               x=self.df_comparison.index,
               y=self.df_comparison[isin],
