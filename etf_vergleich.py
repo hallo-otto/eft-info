@@ -30,9 +30,10 @@ class ETFVergleich:
           "IE00B6R52259": {"name": "iShare MSCI ACWI"               , "ticker": ""        , "performance": -9999, "df": None}
         }
         self.df_comparison = pd.DataFrame()
-        self.fehler_isin = []
-        self.input_type  = "P"
-        self.last_days   = 100
+        self.fehler_isin   = []
+        self.input_type    = "P"
+        self.last_days     = 100
+        self.title         = ""
 
     async def etf_load_data(self, last_days: int):
         self.last_days = last_days
@@ -150,7 +151,7 @@ class ETFVergleich:
 # ----------------
 async def start():
     input_days = st.text_input("Anzahl Tage", value="100")
-    last_days = float(input_days)
+    last_days = int(input_days)
     e = ETFVergleich()
     await e.etf_load_data(last_days)
     selected = await e.etf_eingaben()
