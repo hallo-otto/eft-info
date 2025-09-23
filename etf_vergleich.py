@@ -11,6 +11,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import time
 
+from selenium.common.exceptions import NoSuchElementException
+import requests
+from bs4 import BeautifulSoup
+
 class ETFVergleichInteractive:
     def __init__(self):
         # Beispiel ETFs
@@ -111,6 +115,19 @@ class ETFVergleichInteractive:
     # -----------------------------
     # Funktion: Selenium-Fonds-Infos auslesen
     # -----------------------------
+    def _getKurs(self, driver, c1, soup, tag, elem, elem_name, nr):
+      try:
+        kurs_elem = driver.find_element(By.CSS_SELECTOR, c1)
+        kurs = float(kurs_elem.text.replace("%", "").replace("€", "").replace(",", ".").strip())
+      except Exception as e:
+        try:
+          text = soup.find(tag, {elem: elem_name}).text.replace("\t","").split("\n")[nr]
+          kurs = float(text.replace("%", "").replace("€", "").replace(",", ".").strip())
+        except Exception as e:
+            kurs = None
+
+      return kurs
+
     async def scrape_ariva_fund(self, url):
       options = Options()
       options.add_argument("--headless")  # Browser unsichtbar
@@ -119,17 +136,18 @@ class ETFVergleichInteractive:
 
       driver = webdriver.Chrome(options=options)
       driver.get(url)
+
+      headers = {"User-Agent": "Mozilla/5.0"}
+      r = requests.get(url, headers=headers, timeout=10)
+      r.raise_for_status()
+      soup = BeautifulSoup(r.text, "html.parser")
+
       time.sleep(0.5)  # warten, bis JS geladen ist
 
       try:
-        kurs_elem = driver.find_element(By.CSS_SELECTOR, "div.instrument-header-quote")
-        kurs = float(kurs_elem.text.replace("€", "").replace(",", ".").strip())
-
-        abs_elem = driver.find_element(By.CSS_SELECTOR, "div.instrument-header-abs-change span")
-        abs_change = float(abs_elem.text.replace("€", "").replace(",", ".").strip())
-
-        rel_elem = driver.find_element(By.CSS_SELECTOR, "div.instrument-header-rel-change")
-        rel_change = float(rel_elem.text.replace("%", "").replace(",", ".").strip())
+        kurs       = self._getKurs(driver,"div.instrument-header-quote",  soup,"table","class","line",4)
+        abs_change = self._getKurs(driver, "div.instrument-header-abs-change span",  soup,"table","class","line",6)
+        rel_change = self._getKurs(driver, "div.instrument-header-rel-change",  soup,"table","class","line",8)
       except Exception as e:
         kurs = abs_change = rel_change = None
       finally:
@@ -151,10 +169,11 @@ class ETFVergleichInteractive:
         })
 
       # DataFrame erstellen
-      self.df_error = pd.DataFrame(data)
+      data_sort = sorted(data, key=lambda x: x.get("Name", ""))
+      self.df_error = pd.DataFrame(data_sort)
 
     async def etf_output(self):
-        if self.input_type == "F":
+        if self.input_type == "F" or len(self.df_comparison.columns) == 0:
             await self.data_error()
             # -----------------------------
             # Streamlit Anzeige
