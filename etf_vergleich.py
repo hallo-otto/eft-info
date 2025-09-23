@@ -68,6 +68,9 @@ class ETFVergleichInteractive:
         except Exception:
             self.fehler_isin.append([isin, meta["name"], meta["url"]])
 
+    # -----------------------------
+    # Funktion: Eingaben
+    # -----------------------------
     async def etf_eingaben(self):
         # Auswahl Kennzahl
         input_type = st.radio(
@@ -89,6 +92,9 @@ class ETFVergleichInteractive:
         #self.input_type = "F"
         return selected
 
+    # -----------------------------
+    # Funktion: auslesen der Fond Daten
+    # -----------------------------
     async def etf_read(self, selected):
         self.df_comparison = pd.DataFrame()
         for isin, meta in self.etfs_sorted:
@@ -99,6 +105,9 @@ class ETFVergleichInteractive:
             series = self._prepare_series(meta)
             self.df_comparison[isin] = series
 
+    # -----------------------------
+    # Funktion: Berechnen der Diagramm Daten
+    # -----------------------------
     def _prepare_series(self, meta):
         df = meta["df"]
         if self.input_type == "K":
@@ -128,6 +137,9 @@ class ETFVergleichInteractive:
 
       return kurs
 
+    # -----------------------------
+    # Funktion: Ermitteln Kurse
+    # -----------------------------
     async def scrape_ariva_fund(self, url):
       options = Options()
       options.add_argument("--headless")  # Browser unsichtbar
@@ -142,7 +154,7 @@ class ETFVergleichInteractive:
       r.raise_for_status()
       soup = BeautifulSoup(r.text, "html.parser")
 
-      time.sleep(0.5)  # warten, bis JS geladen ist
+      time.sleep(0.2)  # warten, bis JS geladen ist
 
       try:
         kurs       = self._getKurs(driver,"div.instrument-header-quote",  soup,"table","class","line",4)
@@ -155,26 +167,38 @@ class ETFVergleichInteractive:
 
       return kurs, abs_change, rel_change
 
-    async def data_error(self):
+    # -----------------------------
+    # Funktion: Fehler Daten
+    # -----------------------------
+    async def data_error(self, selected):
       data = []
       for f in self.fehler_isin:
-        kurs, abs_change, rel_change = await self.scrape_ariva_fund(f[2])
+        isin = f[0]
+        name = f[1]
+        url  = f[2]
+        if "Alle" not in selected and f"{isin} – {name}" not in selected:
+            continue
+          
+        kurs, abs_change, rel_change = await self.scrape_ariva_fund(url)
         data.append({
-          "ISIN": f[0],
-          "Name": f[1],
+          "ISIN": isin,
+          "Name": name,
           "Kurs (EUR)": kurs,
           "Absoluter Tageswechsel (EUR)": abs_change,
           "Relativer Tageswechsel (%)": rel_change,
-          "URL": f'<a href="{f[2]}" target="_blank">Link</a>'
+          "URL": f'<a href="{url}" target="_blank">Link</a>'
         })
 
       # DataFrame erstellen
       data_sort = sorted(data, key=lambda x: x.get("Name", ""))
       self.df_error = pd.DataFrame(data_sort)
 
-    async def etf_output(self):
+    # -----------------------------
+    # Funktion: Ausgabe
+    # -----------------------------
+    async def etf_output(self,selected):
         if self.input_type == "F" or len(self.df_comparison.columns) == 0:
-            await self.data_error()
+            await self.data_error(selected)
             # -----------------------------
             # Streamlit Anzeige
             # -----------------------------
@@ -259,7 +283,7 @@ async def start():
     await etf_app.etf_load_data(last_days)
     selected = await etf_app.etf_eingaben()
     await etf_app.etf_read(selected)
-    await etf_app.etf_output()
+    await etf_app.etf_output(selected)
 
 
 asyncio.run(start())
