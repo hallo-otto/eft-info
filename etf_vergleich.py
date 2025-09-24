@@ -6,9 +6,6 @@ import plotly.graph_objs as go
 import justetf_scraping
 import math
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 import time
 
 from selenium.common.exceptions import NoSuchElementException
@@ -133,17 +130,17 @@ class ETFVergleichInteractive:
     # -----------------------------
     # Funktion: Selenium-Fonds-Infos auslesen
     # -----------------------------
-    def _getKurs(self, driver, c1, soup, tag, elem, elem_name, nr, tag1, elem1, elem_name1, nr1, url):
+    def _getKurs(self, soup, tag1, elem1, elem_name1, nr1, tag2, elem2, elem_name2, nr2, tag3, elem3, elem_name3, nr3, url):
       try:
-        kurs_elem = driver.find_element(By.CSS_SELECTOR, c1)
-        kurs = float(kurs_elem.text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
+        text = soup.find(tag1, {elem1: elem_name1}).text.replace("\t","").split("\n")[nr1]
+        kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
       except Exception as e:
         try:
-          text = soup.find(tag, {elem: elem_name}).text.replace("\t","").split("\n")[nr]
+          text = soup.find(tag2, {elem2: elem_name2}).text.replace("\t","").split("\n")[nr2]
           kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
         except Exception as e:
           try:
-            text = soup.find(tag1, {elem1: elem_name1}).text.replace("\t", "").split("\n")[nr1]
+            text = soup.find(tag3, {elem3: elem_name3}).text.replace("\t", "").split("\n")[nr3]
             kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
           except Exception as e:
             kurs = None
@@ -154,14 +151,6 @@ class ETFVergleichInteractive:
     # Funktion: Ermitteln Kurse
     # -----------------------------
     async def scrape_ariva_fund(self, url):
-      options = Options()
-      options.add_argument("--headless")  # Browser unsichtbar
-      options.add_argument("--no-sandbox")
-      options.add_argument("--disable-dev-shm-usage")
-
-      driver = webdriver.Chrome(options=options)
-      driver.get(url)
-
       headers = {"User-Agent": "Mozilla/5.0"}
       r = requests.get(url, headers=headers, timeout=10)
       r.raise_for_status()
@@ -170,13 +159,11 @@ class ETFVergleichInteractive:
       time.sleep(0.2)  # warten, bis JS geladen ist
 
       try:
-        kurs       = self._getKurs(driver,"div.instrument-header-quote",  soup,"table","class","line",4, "div","class","instrument-header-numbers",1,url)
-        abs_change = self._getKurs(driver, "div.instrument-header-abs-change span",  soup,"table","class","line",6, "div","class","instrument-header-numbers",2,url)
-        rel_change = self._getKurs(driver, "div.instrument-header-rel-change",  soup,"table","class","line",8, "div","class","instrument-header-numbers",3,url)
+        kurs       = self._getKurs(soup,"div","class","instrument-header-quote",  1,"table","class","line",4, "div","class","instrument-header-numbers",1,url)
+        abs_change = self._getKurs(soup,"div","class","instrument-header-abs-change",  1,"table","class","line",6, "div","class","instrument-header-numbers",2,url)
+        rel_change = self._getKurs(soup,"div","class","instrument-header-rel-change",  1,"table","class","line",8, "div","class","instrument-header-numbers",3,url)
       except Exception as e:
         kurs = abs_change = rel_change = None
-      finally:
-        driver.quit()
 
       return kurs, abs_change, rel_change
 
@@ -193,25 +180,25 @@ class ETFVergleichInteractive:
         if "Alle" not in selected and f"{isin} – {name}" not in selected:
             continue
 
+        isin_color = "green" if etf == "OK" else "red"
+        isin = f"<span style='color:{isin_color}'>{isin}</span>"
         # Test, ob eine URL vorhanden ist
         if len(url) > 10:
            kurs, abs_change, rel_change = await self.scrape_ariva_fund(url)
-           url = f'<a href="{url}" target="_blank">Link</a>'
+           isin = f'<a href="{url}" target="_blank">{isin}</a>'
         else:
            kurs, abs_change, rel_change, url = None, None, None, ""
 
-        isin_color = "green" if etf == "OK" else "red"
         kurs_color = "#f1cd00"
         if isinstance(rel_change, (int, float)):
            kurs_color = "green" if rel_change > 0 else ("red" if rel_change < 0 else "#f1cd00")
 
         data.append({
-            "ISIN": f"<span style='color:{isin_color}'>{isin}</span>",
+            "ISIN": isin,
             "Name": name,
             "Kurs (EUR)": kurs,
             "Absoluter Tageswechsel (EUR)": f"<span style='color:{kurs_color}'>{abs_change}</span>",
             "Relativer Tageswechsel (%)":   f"<span style='color:{kurs_color}'>{rel_change}</span>",
-            "URL": url
         })
 
       # DataFrame erstellen
