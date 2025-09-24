@@ -19,22 +19,22 @@ class ETFVergleichInteractive:
     def __init__(self):
         # Beispiel ETFs
         self.etfs = {
-          "FR0010655712": {"name": "Amundi DAX UCITS ETF DR (V)"    , "url": ""        , "performance": -9999, "df": None},
-          "DE0005190003": {"name": "BAY.MOTOREN WERKE AG ST"        , "url": ""        , "performance": -9999, "df": None},
-          "IE00B43HR379": {"name": "ISHSV-S+P500H.CA.SECT.DLA"      , "url": ""        , "performance": -9999, "df": None},
-          "IE00BMYDM794": {"name": "LGUE-HYDR.ECO. DLA"             , "url": ""        , "performance": -9999, "df": None},
-          "IE00BYZK4552": {"name": "ISHS IV-AUTO.+ROBOTIC.ETF"      , "url": ""        , "performance": -9999, "df": None},
-          "IE00BM67HT60": {"name": "X(IE)-MSCI WO.IN.TE. 1CDL"      , "url": ""        , "performance": -9999, "df": None},
-          "LU2611732046": {"name": "AIS AMUNDI DAX ETF DIST"        , "url": ""        , "performance": -9999, "df": None},
+          "FR0010655712": {"name": "Amundi DAX UCITS ETF DR (V)"    , "url": "https://www.ariva.de/etf/amundi-etf-dax-ucits-etf-dr?utp=1"                              , "performance": -9999, "df": None},
+          "DE0005190003": {"name": "BAY.MOTOREN WERKE AG ST"        , "url": "https://www.ariva.de/aktien/bmw-ag-st-aktie?utp=1"                                       , "performance": -9999, "df": None},
+          "IE00B43HR379": {"name": "ISHSV-S+P500H.CA.SECT.DLA"      , "url": "https://www.ariva.de/etf/ishares-s-p-500-health-care-sector-ucits-etf-usd-acc?utp=1"     , "performance": -9999, "df": None},
+          "IE00BMYDM794": {"name": "LGUE-HYDR.ECO. DLA"             , "url": "https://www.ariva.de/etf/l-g-hydrogen-economy-ucits-etf-usd-acc-etf?utp=1"               , "performance": -9999, "df": None},
+          "IE00BYZK4552": {"name": "ISHS IV-AUTO.+ROBOTIC.ETF"      , "url": "https://www.ariva.de/etf/ishares-automation-robotics-ucits-etf-usd-acc?utp=1"            , "performance": -9999, "df": None},
+          "IE00BM67HT60": {"name": "X(IE)-MSCI WO.IN.TE. 1CDL"      , "url": "https://www.ariva.de/etf/xtrackers-msci-world-information-technology-ucits-etf-1c?utp=1" , "performance": -9999, "df": None},
+          "LU2611732046": {"name": "AIS AMUNDI DAX ETF DIST"        , "url": "https://www.ariva.de/etf/amundi-core-dax-ucits-etf-dist?utp=1"                           , "performance": -9999, "df": None},
           "LU0171307068": {"name": "BGF-WLD HEALTHSC.NA.A2EO"       , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-healthscience-fund-a2-eur/chart/chartanalyse"  , "performance": -9999, "df": None},
-          "DE0008486655": {"name": "DWS CONCEPT GS+P FOOD LD"       , "url": "https://www.ariva.de/fonds/dws-concept-gs-p-food-ld?utp=1"                             , "performance": -9999, "df": None},
-          "DE0008481763": {"name": "ALL.NEBENW.D A (EUR)"           , "url": "https://www.ariva.de/fonds/allianz-nebenwerte-deutschland-a-eur?utp=1"                 , "performance": -9999, "df": None},
-          "FR0010135103": {"name": "CARMIGN.PATRIMOI. AEO ACC"      , "url": "https://www.ariva.de/fonds/carmignac-patrimoine-a-eur-acc?utp=1"                       , "performance": -9999, "df": None},
-          "LU0055631609": {"name": "BGF-WORLD GOLD A2DL"            , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-gold-fund-a2-usd?utp=1"        , "performance": -9999, "df": None},
-          "LU0323578657": {"name": "FLOSSB.V.STORCH-MUL.OPP.R"      , "url": "https://www.ariva.de/fonds/flossbach-von-storch-sicav-multiple-opportunities-r?utp=1"  , "performance": -9999, "df": None},
-          "DE000SH9VRM6": {"name": "SGIS AKTANL PL 24/26 NVDA"      , "url": "https://www.ariva.de/zertifikate/SH9VRM?utp=1"                                         , "performance": -9999, "df": None},
-          "IE0001UQQ933": {"name": "Kommer Fond"                    , "url": ""        , "performance": -9999, "df": None},
-          "IE00B6R52259": {"name": "iShare MSCI ACWI"               , "url": ""        , "performance": -9999, "df": None}
+          "DE0008486655": {"name": "DWS CONCEPT GS+P FOOD LD"       , "url": "https://www.ariva.de/fonds/dws-concept-gs-p-food-ld?utp=1"                               , "performance": -9999, "df": None},
+          "DE0008481763": {"name": "ALL.NEBENW.D A (EUR)"           , "url": "https://www.ariva.de/fonds/allianz-nebenwerte-deutschland-a-eur?utp=1"                   , "performance": -9999, "df": None},
+          "FR0010135103": {"name": "CARMIGN.PATRIMOI. AEO ACC"      , "url": "https://www.ariva.de/fonds/carmignac-patrimoine-a-eur-acc?utp=1"                         , "performance": -9999, "df": None},
+          "LU0055631609": {"name": "BGF-WORLD GOLD A2DL"            , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-gold-fund-a2-usd?utp=1"          , "performance": -9999, "df": None},
+          "LU0323578657": {"name": "FLOSSB.V.STORCH-MUL.OPP.R"      , "url": "https://www.ariva.de/fonds/flossbach-von-storch-sicav-multiple-opportunities-r?utp=1"    , "performance": -9999, "df": None},
+          "DE000SH9VRM6": {"name": "SGIS AKTANL PL 24/26 NVDA"      , "url": "https://www.ariva.de/zertifikate/SH9VRM?utp=1"                                           , "performance": -9999, "df": None},
+          "IE0001UQQ933": {"name": "Kommer Fond"                    , "url": "https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1" , "performance": -9999, "df": None},
+          "IE00B6R52259": {"name": "iShare MSCI ACWI"               , "url": "https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                              , "performance": -9999, "df": None}
         }
         self.fehler_isin = []
         self.df_comparison = pd.DataFrame()
@@ -43,6 +43,9 @@ class ETFVergleichInteractive:
         self.last_days     = 100
         self.title         = ""
 
+    # -----------------------------
+    # Funktion: Daten Laden
+    # -----------------------------
     async def etf_load_data(self, last_days: int):
         self.last_days = last_days
         tasks = [asyncio.to_thread(self._load_single_etf, isin, meta) for isin, meta in self.etfs.items()]
@@ -53,6 +56,9 @@ class ETFVergleichInteractive:
           key=lambda item: (-item[1]["performance"], item[1]["name"])
         )
 
+    # -----------------------------
+    # Funktion: ETF Laden
+    # -----------------------------
     def _load_single_etf(self, isin, meta):
         try:
             df = justetf_scraping.load_chart(isin)
@@ -65,8 +71,11 @@ class ETFVergleichInteractive:
                 return
             meta["df"] = df_filtered.sort_index()
             meta["performance"] = (df_filtered["quote"].iloc[-1] / df_filtered["quote"].iloc[0] - 1) * 100
+            meta["ETF"] = "OK"
+            self.fehler_isin.append([isin, meta["name"], meta["url"], meta["ETF"]])
         except Exception:
-            self.fehler_isin.append([isin, meta["name"], meta["url"]])
+            meta["ETF"] = ""
+            self.fehler_isin.append([isin, meta["name"], meta["url"],meta["ETF"]])
 
     # -----------------------------
     # Funktion: Eingaben
@@ -75,11 +84,11 @@ class ETFVergleichInteractive:
         # Auswahl Kennzahl
         input_type = st.radio(
             "Kennzahl",
-            ["Kurs", "Relativert Kurs%", "Performance", "Volatilität", "Fehler Liste"],
+            ["Kurs", "Relativert Kurs%", "Performance", "Volatilität", "Liste"],
             index=2,
             horizontal=True
         )
-        mapping = {"Kurs": "K", "Relativert Kurs%": "R", "Performance": "P", "Volatilität": "V", "Fehler Liste": "F"}
+        mapping = {"Kurs": "K", "Relativert Kurs%": "R", "Performance": "P", "Volatilität": "V", "Liste": "F"}
         self.title = input_type
         self.input_type = mapping[input_type]
 
@@ -124,15 +133,19 @@ class ETFVergleichInteractive:
     # -----------------------------
     # Funktion: Selenium-Fonds-Infos auslesen
     # -----------------------------
-    def _getKurs(self, driver, c1, soup, tag, elem, elem_name, nr):
+    def _getKurs(self, driver, c1, soup, tag, elem, elem_name, nr, tag1, elem1, elem_name1, nr1, url):
       try:
         kurs_elem = driver.find_element(By.CSS_SELECTOR, c1)
-        kurs = float(kurs_elem.text.replace("%", "").replace("€", "").replace(",", ".").strip())
+        kurs = float(kurs_elem.text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
       except Exception as e:
         try:
           text = soup.find(tag, {elem: elem_name}).text.replace("\t","").split("\n")[nr]
-          kurs = float(text.replace("%", "").replace("€", "").replace(",", ".").strip())
+          kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
         except Exception as e:
+          try:
+            text = soup.find(tag1, {elem1: elem_name1}).text.replace("\t", "").split("\n")[nr1]
+            kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
+          except Exception as e:
             kurs = None
 
       return kurs
@@ -157,9 +170,9 @@ class ETFVergleichInteractive:
       time.sleep(0.2)  # warten, bis JS geladen ist
 
       try:
-        kurs       = self._getKurs(driver,"div.instrument-header-quote",  soup,"table","class","line",4)
-        abs_change = self._getKurs(driver, "div.instrument-header-abs-change span",  soup,"table","class","line",6)
-        rel_change = self._getKurs(driver, "div.instrument-header-rel-change",  soup,"table","class","line",8)
+        kurs       = self._getKurs(driver,"div.instrument-header-quote",  soup,"table","class","line",4, "div","class","instrument-header-numbers",1,url)
+        abs_change = self._getKurs(driver, "div.instrument-header-abs-change span",  soup,"table","class","line",6, "div","class","instrument-header-numbers",2,url)
+        rel_change = self._getKurs(driver, "div.instrument-header-rel-change",  soup,"table","class","line",8, "div","class","instrument-header-numbers",3,url)
       except Exception as e:
         kurs = abs_change = rel_change = None
       finally:
@@ -176,17 +189,29 @@ class ETFVergleichInteractive:
         isin = f[0]
         name = f[1]
         url  = f[2]
+        etf  = f[3]
         if "Alle" not in selected and f"{isin} – {name}" not in selected:
             continue
-          
-        kurs, abs_change, rel_change = await self.scrape_ariva_fund(url)
+
+        # Test, ob eine URL vorhanden ist
+        if len(url) > 10:
+           kurs, abs_change, rel_change = await self.scrape_ariva_fund(url)
+           url = f'<a href="{url}" target="_blank">Link</a>'
+        else:
+           kurs, abs_change, rel_change, url = None, None, None, ""
+
+        isin_color = "green" if etf == "OK" else "red"
+        kurs_color = "#f1cd00"
+        if isinstance(rel_change, (int, float)):
+           kurs_color = "green" if rel_change > 0 else ("red" if rel_change < 0 else "#f1cd00")
+
         data.append({
-          "ISIN": isin,
-          "Name": name,
-          "Kurs (EUR)": kurs,
-          "Absoluter Tageswechsel (EUR)": abs_change,
-          "Relativer Tageswechsel (%)": rel_change,
-          "URL": f'<a href="{url}" target="_blank">Link</a>'
+            "ISIN": f"<span style='color:{isin_color}'>{isin}</span>",
+            "Name": name,
+            "Kurs (EUR)": kurs,
+            "Absoluter Tageswechsel (EUR)": f"<span style='color:{kurs_color}'>{abs_change}</span>",
+            "Relativer Tageswechsel (%)":   f"<span style='color:{kurs_color}'>{rel_change}</span>",
+            "URL": url
         })
 
       # DataFrame erstellen
