@@ -7,6 +7,7 @@ import justetf_scraping
 import math
 
 import time
+from lxml import html
 
 from selenium.common.exceptions import NoSuchElementException
 import requests
@@ -130,17 +131,17 @@ class ETFVergleichInteractive:
     # -----------------------------
     # Funktion: Selenium-Fonds-Infos auslesen
     # -----------------------------
-    def _getKurs(self, soup, tag1, elem1, elem_name1, nr1, tag2, elem2, elem_name2, nr2, tag3, elem3, elem_name3, nr3, url):
+    def _getKurs(self, soup, tag1, elem_name1, nr1, tag2, elem_name2, nr2, tag3,  elem_name3, nr3, url):
       try:
-        text = soup.find(tag1, {elem1: elem_name1}).text.replace("\t","").split("\n")[nr1]
+        text = soup.find(tag1, {"class": elem_name1}).text.replace("\t","").split("\n")[nr1]
         kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
       except Exception as e:
         try:
-          text = soup.find(tag2, {elem2: elem_name2}).text.replace("\t","").split("\n")[nr2]
+          text = soup.find(tag2, {"class": elem_name2}).text.replace("\t","").split("\n")[nr2]
           kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
         except Exception as e:
           try:
-            text = soup.find(tag3, {elem3: elem_name3}).text.replace("\t", "").split("\n")[nr3]
+            text = soup.find(tag3, {"class": elem_name3}).text.replace("\t", "").split("\n")[nr3]
             kurs = float(text.replace("%", "").replace("&nbsp;", "").replace("€", "").replace(",", ".").strip())
           except Exception as e:
             kurs = None
@@ -152,16 +153,19 @@ class ETFVergleichInteractive:
     # -----------------------------
     async def scrape_ariva_fund(self, url):
       headers = {"User-Agent": "Mozilla/5.0"}
-      r = requests.get(url, headers=headers, timeout=10)
-      r.raise_for_status()
-      soup = BeautifulSoup(r.text, "html.parser")
+      response = requests.get(url, headers=headers, timeout=10)
+      response.raise_for_status()
+      soup = BeautifulSoup(response.text, "html.parser")
+      #schneller
+      #tree = html.fromstring(response.content)
+      #elem = tree.cssselect(c1)[0]
 
       time.sleep(0.2)  # warten, bis JS geladen ist
 
       try:
-        kurs       = self._getKurs(soup,"div","class","instrument-header-quote",  1,"table","class","line",4, "div","class","instrument-header-numbers",1,url)
-        abs_change = self._getKurs(soup,"div","class","instrument-header-abs-change",  1,"table","class","line",6, "div","class","instrument-header-numbers",2,url)
-        rel_change = self._getKurs(soup,"div","class","instrument-header-rel-change",  1,"table","class","line",8, "div","class","instrument-header-numbers",3,url)
+        kurs = self._getKurs(soup, "div", "instrument-header-quote", 1, "table", "line", 4, "div","instrument-header-numbers", 1, url)
+        abs_change = self._getKurs(soup, "div", "instrument-header-abs-change", 1, "table", "line", 6,"div", "instrument-header-numbers", 2, url)
+        rel_change = self._getKurs(soup, "div", "instrument-header-rel-change", 1, "table", "line", 8, "div","instrument-header-numbers", 3, url)
       except Exception as e:
         kurs = abs_change = rel_change = None
 
