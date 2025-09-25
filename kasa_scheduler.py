@@ -75,7 +75,7 @@ class Kasa_Scheduler:
       )
       st.markdown(f"**{title}**")
       st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
-      return "ok"
+      return True
 
   async def ping(self, ip):
     # Anzahl Ping-Versuche
