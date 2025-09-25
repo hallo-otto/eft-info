@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 class Kasa_Scheduler:
-  def __init__(self):
+  def __init__(self,user, pw):
     self.plug_ip = [
       {"ip": "192.168.2.157", "name": "0Pumpe blau Küche"},
       {"ip": "192.168.2.156", "name": "1Rasen grün Innenstern"},
@@ -14,8 +14,8 @@ class Kasa_Scheduler:
       {"ip": "192.168.2.159", "name": "Tropfenlampe grau mini"}
     ]
 
-    self.username = "hallo.otto123.oo@gmail.com",
-    self.password = "kasa#196"
+    self.username = user
+    self.password = pw
 
   async def dev_info(self):
       for ip in self.plug_ip:
@@ -25,9 +25,9 @@ class Kasa_Scheduler:
       try:
         devices = await Discover.discover_single (
           host=ip,
-          timeout=5,
-          username="hallo.otto123.oo@gmail.com",
-          password="kasa#196"
+          timeout=2,
+          username= self.username,
+          password="self.password"
         )
         await devices.update()
        # print(f"devices: {devices}")
@@ -87,8 +87,20 @@ class Kasa_Scheduler:
 # Streamlit Start
 # ----------------
 async def start():
-  s = Kasa_Scheduler()
-  await s.dev_info()
+  user = st.text_input("User")
+  pw = st.text_input("Password")
+  if st.button("Anmelden"):
+    try:
+      s = Kasa_Scheduler(user, pw)
+      await s.dev_info()
+
+      st.success("Login erfolgreich!")
+      st.session_state.logged_in = True
+      # Neustart nach Anmeldung
+      #st.rerun()
+    except Exception as e:
+      st.error(f"Anmeldefehler: {e}")
+
   #Test
   #await s.dev_ausgabe("192.168.2.159")
 
