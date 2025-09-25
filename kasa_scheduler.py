@@ -103,7 +103,7 @@ async def start():
   if st.button("Anmelden"):
     try:
       s = Kasa_Scheduler(user, pw)
-      if await s.dev_info() == "error": return
+      if await s.dev_info() == False: return
       st.success("Login erfolgreich!")
       #st.session_state.logged_in = True
       # Neustart nach Anmeldung
