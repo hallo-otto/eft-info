@@ -88,14 +88,13 @@ class Kasa_Scheduler:
 # ----------------
 async def start():
   user = st.text_input("User")
-  pw = st.text_input("Password")
+  pw   = st.text_input("Password")
   if st.button("Anmelden"):
     try:
       s = Kasa_Scheduler(user, pw)
       await s.dev_info()
-
       st.success("Login erfolgreich!")
-      st.session_state.logged_in = True
+      #st.session_state.logged_in = True
       # Neustart nach Anmeldung
       #st.rerun()
     except Exception as e:
