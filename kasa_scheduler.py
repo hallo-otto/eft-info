@@ -19,7 +19,8 @@ class Kasa_Scheduler:
 
   async def dev_info(self):
       for ip in self.plug_ip:
-          await self.dev_ausgabe(ip["ip"])
+          rc = await self.dev_ausgabe(ip["ip"])
+      return rc
 
   async def dev_ausgabe(self,ip):
       try:
@@ -29,12 +30,12 @@ class Kasa_Scheduler:
           username= self.username,
           password="self.password"
         )
-        await devices.update()
-       # print(f"devices: {devices}")
+        rc = await devices.update()
+        # print(f"devices: {devices}")
 
       except Exception as e:
-        print(f"❌ Error bei IP {ip}: {e!r}")
-        return
+        st.error(f"❌ Error bei IP {ip}: {e!r}")
+        return "error"
 
       #print(f"Info: {info}")
       info = devices.sys_info  # rohes Dict aus system.get_sysinfo
@@ -83,6 +84,7 @@ class Kasa_Scheduler:
       )
       st.markdown(f"**{title}**")
       st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
+      return "ok"
 # ----------------
 # Streamlit Start
 # ----------------
@@ -92,7 +94,7 @@ async def start():
   if st.button("Anmelden"):
     try:
       s = Kasa_Scheduler(user, pw)
-      await s.dev_info()
+      if await s.dev_info() == "error": return
       st.success("Login erfolgreich!")
       #st.session_state.logged_in = True
       # Neustart nach Anmeldung
