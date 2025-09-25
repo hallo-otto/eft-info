@@ -3,6 +3,7 @@ from kasa import Discover
 import pandas as pd
 import streamlit as st
 import subprocess
+import platform
 
 class Kasa_Scheduler:
   def __init__(self,user, pw):
