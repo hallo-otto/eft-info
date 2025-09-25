@@ -26,7 +26,7 @@ class Kasa_Scheduler:
       try:
         devices = await Discover.discover_single (
           host=ip,
-          timeout=2,
+          timeout=5,
           username= self.username,
           password="self.password"
         )
