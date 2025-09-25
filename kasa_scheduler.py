@@ -2,6 +2,7 @@ import asyncio
 from kasa import Discover
 import pandas as pd
 import streamlit as st
+import subprocess
 
 class Kasa_Scheduler:
   def __init__(self,user, pw):
@@ -23,6 +24,8 @@ class Kasa_Scheduler:
       return rc
 
   async def dev_ausgabe(self,ip):
+      if ping(ip) == False: return
+      
       try:
         devices = await Discover.discover_single (
           host=ip,
@@ -37,23 +40,10 @@ class Kasa_Scheduler:
         st.error(f"❌ Error bei IP {ip}: {e!r}")
         return "error"
 
-      #print(f"Info: {info}")
-      info = devices.sys_info  # rohes Dict aus system.get_sysinfo
-      #print("Info")
-      #print("Gerät:", info["alias"])
-      #print("Modell:", info["model"])
-      #print("Name:", info["dev_name"])
-      #print("Firmware:", info["sw_ver"])
-      #print("Status:", "an" if info["relay_state"] == 1 else "aus")
-      ##print("Betriebszeit:", info["on_time"], "Sekunden")
-      ##print("Signalstärke:", info["rssi"], "dBm")
-      #print("Aktiver Modus:", info["active_mode"])
-      #print("Nächste Aktion:", info["next_action"])
-
+      info   = devices.sys_info  # rohes Dict aus system.get_sysinfo
       status = "an" if info["relay_state"] == 1 else "aus"
       title  = f"Device: {devices.host} {info['alias']} Status: {status}"
-      #print(f"Device: {devices.host} {info['alias']} Status: {status}")
-      #print("rule_list")
+
       rule_list = devices.modules["schedule"].data["get_rules"]["rule_list"]
 
       # Sortieren
@@ -70,7 +60,7 @@ class Kasa_Scheduler:
         zeit   = f"{h}:{m}"
         schalt = "aus" if rule.get('sact') == 0 else "an"
         tage   = ", ".join(str(x) for x in rule.get("wday"))
-        #print(f"Name: {rule.get('name')} Schalter: {schalt} Tage: {tage}, stime: {rule.get('stime_opt')} Zeit:{zeit}")
+
         data.append({
           "Name": rule.get("name"),
           "Schalter": schalt,
@@ -85,6 +75,24 @@ class Kasa_Scheduler:
       st.markdown(f"**{title}**")
       st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
       return "ok"
+
+  async def ping(self, ip):
+    # Anzahl Ping-Versuche
+    count = '4'  if platform.system().lower() != 'windows' else '4'
+    param = '-n' if platform.system().lower() == 'windows' else '-c'
+
+    try:
+      result = subprocess.run(
+        ['ping', param, count, ip],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+      )
+      print(result.stdout)
+      return result.returncode == 0
+    except Exception as e:
+      st.error(f"Fehler beim Ping: {ip} {e}")
+      return False
 # ----------------
 # Streamlit Start
 # ----------------
