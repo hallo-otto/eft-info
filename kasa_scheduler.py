@@ -24,8 +24,8 @@ class Kasa_Scheduler:
       return rc
 
   async def dev_ausgabe(self,ip):
-      if ping(ip) == False: return
-      
+      if await self.ping(ip) == False: return
+
       try:
         devices = await Discover.discover_single (
           host=ip,
