@@ -13,19 +13,18 @@ class Kasa_Scheduler:
       {"ip": "192.168.2.160", "name": "2Beet gelb Küche S-Bogen"},
       {"ip": "192.168.2.158", "name": "3Vorgarten orange Außenstern"},
       {"ip": "192.168.2.161", "name": "4Micro Drip" },
-   ]
-
+    ]
     self.username = user
     self.password = pw
 
   async def dev_info(self):
       for ip in self.plug_ip:
           rc = await self.dev_ausgabe(ip["ip"])
-          if rc == False: return False
+          if not rc: return False
       return True
 
   async def dev_ausgabe(self,ip):
-      if await self.ping(ip) == False: return False
+      if not await self.ping(ip): return False
 
       try:
         devices = await Discover.discover_single (
@@ -90,11 +89,14 @@ class Kasa_Scheduler:
         stderr=subprocess.PIPE,
         text=True
       )
-      return True
+      if result.returncode == 0:
+          st.error(f"Fehler beim Ping: {ip}")
+          return False
     except Exception as e:
       st.error(f"Fehler beim Ping: {ip} {e}")
       return False
 
+    return True
 # ----------------
 # Streamlit Start
 # ----------------
