@@ -89,7 +89,7 @@ class Kasa_Scheduler:
         stderr=subprocess.PIPE,
         text=True
       )
-      if result.returncode == 0:
+      if not result.returncode == 0:
           st.error(f"Fehler beim Ping: {ip}")
           return False
     except Exception as e:
