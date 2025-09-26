@@ -57,11 +57,4 @@ async def start():
      except Exception as e:
         st.error(f"❌ Anmeldefehler1: {e}")
 
-
-
-async def start_test():
-    d = Kasa_Devices()
-    await d.logon("hallo.otto123.oo@gmail.com", "kasa#196")
-    d.ausgabe()
-
 asyncio.run(start())
