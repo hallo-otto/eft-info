@@ -13,8 +13,7 @@ class Kasa_Scheduler:
       {"ip": "192.168.2.160", "name": "2Beet gelb Küche S-Bogen"},
       {"ip": "192.168.2.158", "name": "3Vorgarten orange Außenstern"},
       {"ip": "192.168.2.161", "name": "4Micro Drip" },
-      {"ip": "192.168.2.159", "name": "Tropfenlampe grau mini"}
-    ]
+   ]
 
     self.username = user
     self.password = pw
@@ -32,14 +31,14 @@ class Kasa_Scheduler:
         devices = await Discover.discover_single (
           host=ip,
           timeout=5,
-          username= self.username,
-          password="self.password"
+          #username= self.username,
+          #password="self.password"
         )
         await devices.update()
 
       except Exception as e:
         st.error(f"❌ Error bei IP {ip}: {e!r}")
-        return "error"
+        return False
 
       info   = devices.sys_info  # rohes Dict aus system.get_sysinfo
       status = "an" if info["relay_state"] == 1 else "aus"
@@ -59,11 +58,13 @@ class Kasa_Scheduler:
         m    = rule.get("smin") % 60
         if m<10: m=f"0{m}"
         zeit   = f"{h}:{m}"
-        schalt = "aus" if rule.get('sact') == 0 else "an"
-        tage   = ", ".join(str(x) for x in rule.get("wday"))
+        schalt = "aus"     if rule.get('sact') == 0   else "ein"
+        enable = "inaktiv" if rule.get('enable') == 0 else "aktiv"
+        tage   = " ".join(str(x) for x in rule.get("wday"))
 
         data.append({
           "Name": rule.get("name"),
+          "Enable": enable ,
           "Schalter": schalt,
           "Tage": tage,
           "Zeit": zeit
@@ -98,18 +99,17 @@ class Kasa_Scheduler:
 # Streamlit Start
 # ----------------
 async def start():
-  user = st.text_input("User")
-  pw   = st.text_input("Password")
-  if st.button("Anmelden"):
-    try:
-      s = Kasa_Scheduler(user, pw)
-      if await s.dev_info() == False: return
-      st.success("Login erfolgreich!")
-      #st.session_state.logged_in = True
-      # Neustart nach Anmeldung
-      #st.rerun()
-    except Exception as e:
-      st.error(f"Anmeldefehler: {e}")
+  #user = st.text_input("User")
+  #pw   = st.text_input("Password")
+  #if st.button("Anmelden"):
+  try:
+    s = Kasa_Scheduler("xxx", "xxx")
+    if await s.dev_info() == False: return
+    #st.session_state.logged_in = True
+    # Neustart nach Anmeldung
+    #st.rerun()
+  except Exception as e:
+   st.error(f"❌ Anmeldefehler: {e}")
 
   #Test
   #await s.dev_ausgabe("192.168.2.159")
