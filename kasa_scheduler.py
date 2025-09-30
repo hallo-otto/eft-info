@@ -17,13 +17,13 @@ class Kasa_Scheduler:
     self.username = user
     self.password = pw
 
-  async def dev_info(self):
+  async def dev_info(self, filter_enable):
       for ip in self.plug_ip:
-          rc = await self.dev_ausgabe(ip["ip"])
+          rc = await self.dev_ausgabe(ip["ip"], filter_enable)
           if not rc: return False
       return True
 
-  async def dev_ausgabe(self,ip):
+  async def dev_ausgabe(self,ip, filter_enable):
       if not await self.ping(ip): return False
 
       try:
@@ -60,14 +60,15 @@ class Kasa_Scheduler:
         schalt = "aus"     if rule.get('sact') == 0   else "ein"
         enable = "inaktiv" if rule.get('enable') == 0 else "aktiv"
         tage   = " ".join(str(x) for x in rule.get("wday"))
-
-        data.append({
-          "Name": rule.get("name"),
-          "Enable": enable ,
-          "Schalter": schalt,
-          "Tage": tage,
-          "Zeit": zeit
-        })
+        #st.write(f"{filter_enable}   {enable}")
+        if not filter_enable or enable == "aktiv":
+           data.append({
+            "Name": rule.get("name"),
+            "Enable": enable ,
+            "Schalter": schalt,
+            "Tage": tage,
+            "Zeit": zeit
+            })
       df = pd.DataFrame(data)
       st.markdown(
        "<style>table th {text-align: left !important;</style>",
@@ -106,7 +107,8 @@ async def start():
   #if st.button("Anmelden"):
   try:
     s = Kasa_Scheduler("xxx", "xxx")
-    if await s.dev_info() == False: return
+    filter_enable = st.checkbox("Enalbe")
+    if not await s.dev_info(filter_enable): return
     #st.session_state.logged_in = True
     # Neustart nach Anmeldung
     #st.rerun()
