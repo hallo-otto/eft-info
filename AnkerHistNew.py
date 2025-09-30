@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import math
+import pandas as pd
 from matplotlib.widgets import CheckButtons
 from tornado.options import options
 
@@ -21,9 +22,24 @@ class AnkerSolixInfo:
     self.numdays = numdays
     self.session = session
     self.data    = []
+    self.total1  = []
+    self.total2  = []
+    self.total3  = []
+    self.total4  = []
+    self.erzeugt = 0
     self.ph1     = st.empty()
     self.ph2     = st.empty()
     self.ph3     = st.empty()
+    self.ph401   = st.empty()
+    self.ph402   = st.empty()
+    self.ph411   = st.empty()
+    self.ph412   = st.empty()
+    self.ph421   = st.empty()
+    self.ph422   = st.empty()
+    self.ph431   = st.empty()
+    self.ph432   = st.empty()
+    self.ph441   = st.empty()
+    self.ph442   = st.empty()
     self.api     = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
 
   async def update_sites(self):
@@ -37,6 +53,7 @@ class AnkerSolixInfo:
     xitem = self.api.sites.items()
     items = list(xitem)
     if items:
+      self.erzeugt = items[0][1]["statistics"][0]["total"]
       site, site_data = items[0]
       await self.hist(site_data)
       self.api.sites.clear()
@@ -44,6 +61,9 @@ class AnkerSolixInfo:
        st.warning("Keine Standorte verfügbar.")
        #print("Keine Standorte verfügbar.")
 
+  # ----------------
+  # Hist Daten
+  # ----------------
   async def hist(self, site_data):
       # Historische Daten
       siteId    = site_data.get("site_id")
@@ -63,12 +83,26 @@ class AnkerSolixInfo:
       #data = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="")
       #print(data)
 
+      self.total1 = ([{"Titel": "erzeugt", "Daten": self.erzeugt}])
+
       # "device_type": ["solar_production", "solarbank", "home_usage", "grid"]
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="solar_production")
       self.data.extend([{"type": "solar production", "color": "#84bd00", "data": resp.get("power")}])
 
+      self.total2 = ([{"Titel": "solar_total", "Daten": resp["solar_total"]},
+                      {"Titel": "solar_to_battery_total", "Daten": resp["solar_to_battery_total"]},
+                      {"Titel": "solar_to_home_total", "Daten": resp["solar_to_home_total"]},
+                      {"Titel": "solar_to_grid_total", "Daten": resp["solar_to_grid_total"]}
+      ])
+
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="home_usage")
       self.data.extend([{"type": "home usage", "color": "#0085ad", "data": resp.get("power")}])
+
+      self.total3 = ([{"Titel": "home_usage_total", "Daten": resp["home_usage_total"]},
+                      {"Titel": "battery_to_home_total", "Daten": resp["battery_to_home_total"]},
+                      {"Titel": "solar_to_home_total", "Daten": resp["solar_to_home_total"]},
+                      {"Titel": "grid_to_home_total", "Daten": resp["grid_to_home_total"]}
+      ])
 
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="solarbank")
       self.data.extend([{"type": 'solarbank', "color": "#e1e000", "data": resp.get("power")}])
@@ -76,6 +110,24 @@ class AnkerSolixInfo:
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="grid")
       self.data.extend([{"type": "grid export", "color": "#e4002b", "data": resp.get("power")}])
 
+      self.total4 = ([{"Titel": "solar_to_grid_total", "Daten": resp["solar_to_grid_total"]},
+                      {"Titel": "grid_imported_total", "Daten": resp["grid_imported_total"]}
+      ])
+
+      """
+      proz = round(100 * float(100 - resp["solar_to_grid_total"]) / float(self.erzeugt),2)
+      self.total =([
+         {"Tilel": "erzeugt",               "Daten" : self.erzeugt},
+         {"Tilel": "solar_to_grid_total",   "Daten" : resp["solar_to_grid_total"]},
+         {"Tilel": "grid_to_home_total",    "Daten" : resp["grid_to_home_total"]},
+         {"Tilel": "grid_imported_total",   "Daten" : resp["grid_imported_total"]},
+         {"Tilel": "grid_to_battery_total", "Daten" : resp["grid_to_battery_total"]},
+         {"Tilel": "prozent eigennutzung",  "Daten" : proz}
+      ])
+      """
+  # ----------------
+  # Grafik
+  # ----------------
   async def ausgabe_graph(self):
     selected = ["all"]
     if "selected_curves" in st.session_state:
@@ -83,6 +135,16 @@ class AnkerSolixInfo:
     self.ph1.empty()
     self.ph2.empty()
     self.ph3.empty()
+    self.ph401.empty()
+    self.ph402.empty()
+    self.ph411.empty()
+    self.ph412.empty()
+    self.ph421.empty()
+    self.ph422.empty()
+    self.ph431.empty()
+    self.ph432.empty()
+    self.ph441.empty()
+    self.ph442.empty()
     graph_container = st.container()
 
     with graph_container:
@@ -97,6 +159,7 @@ class AnkerSolixInfo:
       arr_avg = []
       arr_color = []
 
+      # Grafik ph1
       for d in self.data:
         dd = d.get("data")
         type = d["type"]
@@ -164,15 +227,15 @@ class AnkerSolixInfo:
       iv = math.ceil(n / 15)
       ax.xaxis.set_major_locator(mdates.DayLocator(interval=iv))
 
-      # Grafik anzeigen
+      # Grafik anzeigen ph1
       fig.tight_layout()
       self.ph1.pyplot(fig)
-      # Überschreitung 2.7kWk
+      # Überschreitung 2.7kWk ph2
       prz = round(100 * anz_th / n, 2)
       self.ph2.markdown(
         f"<p style='font-size:13px;padding-left:20px'>🔹Überschreitung Einspeisung {th} kWh Tage: {anz_th} ({prz}%)</p>", unsafe_allow_html=True)
 
-      # Durchscnitt
+      # Durchscnitt ph3
       fig, ax = plt.subplots(figsize=(12, 6))
       bars = ax.bar(arr_type, arr_avg, color=arr_color)
       # Beschriftungen über den Balken
@@ -194,6 +257,28 @@ class AnkerSolixInfo:
       fig.tight_layout()
       self.ph3.pyplot(fig)
 
+      # Statistik ph4
+      self.ph401.markdown("<style>table th {text-align: left !important;</style>",  unsafe_allow_html=True)
+      self.ph402.markdown(f"**Statistik**")
+
+      df1 = pd.DataFrame(self.total1)
+      self.ph411.markdown(f"**Erzeugt**")
+      self.ph412.markdown(df1.to_html(escape=False, index=False), unsafe_allow_html=True)
+
+      df2 = pd.DataFrame(self.total2)
+      self.ph421.markdown(f"**solar_production**")
+      self.ph422.markdown(df2.to_html(escape=False, index=False), unsafe_allow_html=True)
+
+      df3 = pd.DataFrame(self.total3)
+      self.ph431.markdown(f"**home_usage**")
+      self.ph432.markdown(df3.to_html(escape=False, index=False), unsafe_allow_html=True)
+
+      df4 = pd.DataFrame(self.total4)
+      self.ph441.markdown(f"**grid**")
+      self.ph442.markdown(df4.to_html(escape=False, index=False), unsafe_allow_html=True)
+  # ----------------
+  # Create Session
+  # ----------------
 async def create_session_and_update(user, pw, country, numdays):
   async with ClientSession() as session:
       a = AnkerSolixInfo(user, pw, country, numdays, session)
@@ -255,6 +340,3 @@ else:
   st.multiselect(label="Kurve auswählen:",options=kurven,default=kurven,key="selected_curves",on_change=draw_graph)
   a = st.session_state["a"]
   asyncio.run(a.ausgabe_graph())
-
-
-
