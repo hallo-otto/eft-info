@@ -146,6 +146,7 @@ class ETFVergleichInteractive:
           except Exception as e:
             kurs = None
 
+          if isinstance(kurs, (int, float)): kurs = round(kurs, 2)
       return kurs
 
     # -----------------------------
