@@ -71,7 +71,8 @@ class Kasa_Scheduler:
             })
       df = pd.DataFrame(data)
       st.markdown(
-       "<style>table th {text-align: left !important;</style>",
+       "<style>table th {text-align: left !important;} .dataframe td:first-child, th:first-child {width: 12"
+       "0px !important;white-space: nowrap}</style>",
         unsafe_allow_html=True
       )
       st.markdown(f"**{title}**")
