@@ -22,25 +22,11 @@ class AnkerSolixInfo:
     self.numdays = numdays
     self.session = session
     self.data    = []
-    self.total1  = []
-    self.total2  = []
-    self.total3  = []
-    self.total4  = []
+    self.total   = []
     self.erzeugt = 0
-    self.ph1     = st.empty()
-    self.ph2     = st.empty()
-    self.ph3     = st.empty()
-    self.ph401   = st.empty()
-    self.ph402   = st.empty()
-    self.ph411   = st.empty()
-    self.ph412   = st.empty()
-    self.ph421   = st.empty()
-    self.ph422   = st.empty()
-    self.ph431   = st.empty()
-    self.ph432   = st.empty()
-    self.ph441   = st.empty()
-    self.ph442   = st.empty()
     self.api     = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
+    # Kurven Auswahl, muss mit data.type übereinstimmen
+    self.kurven  = ["solar production", "home usage", "solarbank", "grid export"]
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
@@ -83,26 +69,28 @@ class AnkerSolixInfo:
       #data = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="")
       #print(data)
 
-      self.total1 = ([{"Titel": "erzeugt", "Daten": self.erzeugt}])
+      #total1 = ([{"Titel": "erzeugt", "Daten": self.erzeugt}])
 
       # "device_type": ["solar_production", "solarbank", "home_usage", "grid"]
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="solar_production")
       self.data.extend([{"type": "solar production", "color": "#84bd00", "data": resp.get("power")}])
 
-      self.total2 = ([{"Titel": "solar_total", "Daten": resp["solar_total"]},
-                      {"Titel": "solar_to_battery_total", "Daten": resp["solar_to_battery_total"]},
-                      {"Titel": "solar_to_home_total", "Daten": resp["solar_to_home_total"]},
-                      {"Titel": "solar_to_grid_total", "Daten": resp["solar_to_grid_total"]}
+      total2 = ([{"Titel": "solar_total", "Daten": resp["solar_total"]},
+                 {"Titel": "solar_to_battery_total", "Daten": resp["solar_to_battery_total"]},
+                 {"Titel": "solar_to_home_total",    "Daten": resp["solar_to_home_total"]},
+                 {"Titel": "solar_to_grid_total",    "Daten": resp["solar_to_grid_total"]}
       ])
+      total1 = [total2[0]]
 
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="home_usage")
       self.data.extend([{"type": "home usage", "color": "#0085ad", "data": resp.get("power")}])
 
-      self.total3 = ([{"Titel": "home_usage_total", "Daten": resp["home_usage_total"]},
-                      {"Titel": "battery_to_home_total", "Daten": resp["battery_to_home_total"]},
-                      {"Titel": "solar_to_home_total", "Daten": resp["solar_to_home_total"]},
-                      {"Titel": "grid_to_home_total", "Daten": resp["grid_to_home_total"]}
+      total3 = ([{"Titel": "home_usage_total",      "Daten": resp["home_usage_total"]},
+                 {"Titel": "battery_to_home_total", "Daten": resp["battery_to_home_total"]},
+                 {"Titel": "solar_to_home_total",   "Daten": resp["solar_to_home_total"]},
+                 {"Titel": "grid_to_home_total",    "Daten": resp["grid_to_home_total"]}
       ])
+      total1.append(total3[0])
 
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="solarbank")
       self.data.extend([{"type": 'solarbank', "color": "#e1e000", "data": resp.get("power")}])
@@ -110,53 +98,47 @@ class AnkerSolixInfo:
       resp = await self.api.energy_analysis(siteId=siteId, deviceSn="", rangeType="week", startDay=startDay, endDay=endDay,  devType="grid")
       self.data.extend([{"type": "grid export", "color": "#e4002b", "data": resp.get("power")}])
 
-      self.total4 = ([{"Titel": "solar_to_grid_total", "Daten": resp["solar_to_grid_total"]},
-                      {"Titel": "grid_imported_total", "Daten": resp["grid_imported_total"]}
+      total4 = ([{"Titel": "solar_to_grid_total", "Daten": resp["solar_to_grid_total"]},
+                 {"Titel": "grid_imported_total", "Daten": resp["grid_imported_total"]}
       ])
+      total1.append(total4[0])
+      total1.append(total4[1])
+      prz = 100 - round(100 * float(total4[1]["Daten"]) / float(total3[0]["Daten"]),2)
+      total1.extend([{"Titel": "Eigenverbrauch%", "Daten": prz}])
 
-      """
-      proz = round(100 * float(100 - resp["solar_to_grid_total"]) / float(self.erzeugt),2)
-      self.total =([
-         {"Tilel": "erzeugt",               "Daten" : self.erzeugt},
-         {"Tilel": "solar_to_grid_total",   "Daten" : resp["solar_to_grid_total"]},
-         {"Tilel": "grid_to_home_total",    "Daten" : resp["grid_to_home_total"]},
-         {"Tilel": "grid_imported_total",   "Daten" : resp["grid_imported_total"]},
-         {"Tilel": "grid_to_battery_total", "Daten" : resp["grid_to_battery_total"]},
-         {"Tilel": "prozent eigennutzung",  "Daten" : proz}
+      self.total = ([{"titel": "Gesamt",           "daten": total1},
+                     {"titel": "Solar Production", "daten": total2},
+                     {"titel": "Verbrauch",        "daten": total3},
+                     {"titel": "Netz",             "daten": total4}
       ])
-      """
   # ----------------
   # Grafik
   # ----------------
   async def ausgabe_graph(self):
     selected = ["all"]
-    if "selected_curves" in st.session_state:
-      selected = st.session_state.selected_curves
-    self.ph1.empty()
-    self.ph2.empty()
-    self.ph3.empty()
-    self.ph401.empty()
-    self.ph402.empty()
-    self.ph411.empty()
-    self.ph412.empty()
-    self.ph421.empty()
-    self.ph422.empty()
-    self.ph431.empty()
-    self.ph432.empty()
-    self.ph441.empty()
-    self.ph442.empty()
+    try:
+      if "selected_curves" in st.session_state:
+          selected = st.session_state.selected_curves
+    except Exception as e:
+      selected = ["all"]
+
+    ph1 = st.empty()
+    ph2 = st.empty()
+    ph3 = st.empty()
+
     graph_container = st.container()
 
     with graph_container:
       if len(selected) == 0:
-          self.ph1.error("keine Kurve ausgewählt!")
-          self.ph2.write("")
-          self.ph3.write("")
-          return
+         ph1.error("keine Kurve ausgewählt!")
+         ph2.write("")
+         ph3.write("")
+         return
+
       # Ausgabe
-      werte = []
-      arr_type = []
-      arr_avg = []
+      werte     = []
+      arr_type  = []
+      arr_avg   = []
       arr_color = []
 
       # Grafik ph1
@@ -180,7 +162,7 @@ class AnkerSolixInfo:
           arr_dd.extend([datetime.strptime(w.get("time"), '%Y-%m-%d')])
           arr_ww.extend([round(val, 2)])
           arr_th.extend([th])
-          # wie oft wird der Schwellwert überschtritten
+          # wie oft wird der Schwellwert überschritten
           if d.get("type") == "grid export" and val <= th:
             anz_th += 1
 
@@ -229,10 +211,10 @@ class AnkerSolixInfo:
 
       # Grafik anzeigen ph1
       fig.tight_layout()
-      self.ph1.pyplot(fig)
+      ph1.pyplot(fig)
       # Überschreitung 2.7kWk ph2
       prz = round(100 * anz_th / n, 2)
-      self.ph2.markdown(
+      ph2.markdown(
         f"<p style='font-size:13px;padding-left:20px'>🔹Überschreitung Einspeisung {th} kWh Tage: {anz_th} ({prz}%)</p>", unsafe_allow_html=True)
 
       # Durchscnitt ph3
@@ -247,96 +229,85 @@ class AnkerSolixInfo:
 
         plt.text(bar.get_x() + bar.get_width() / 2, yb, f'{y}', ha='center', va='bottom', fontsize=12)
 
-      ax.set_title(f"Solaranlage Durchscnitt ({n})", fontsize=13)
+      ax.set_title(f"Solaranlage Durchschnitt ({n})", fontsize=13)
       ax.legend()
       ax.grid(True)
-      ax.tick_params(axis='x', labelsize=12)  # Schriftgröße x-Achsenwerte
-      ax.tick_params(axis='y', labelsize=12)  # Schriftgröße y-Achsenwerte
+      ax.tick_params(axis='x',    labelsize=12)  # Schriftgröße x-Achsenwerte
+      ax.tick_params(axis='y',    labelsize=12)  # Schriftgröße y-Achsenwerte
       ax.set_xlabel("Type", fontsize=12)
-      ax.set_ylabel("kWh", fontsize=12)
+      ax.set_ylabel("kWh",  fontsize=12)
       fig.tight_layout()
-      self.ph3.pyplot(fig)
+      ph3.pyplot(fig)
 
-      # Statistik ph4
-      self.ph401.markdown("<style>table th {text-align: left !important;</style>",  unsafe_allow_html=True)
-      self.ph402.markdown(f"**Statistik**")
+      # Statistik
+      phs = st.empty()
+      phs.title("Statistik")
 
-      df1 = pd.DataFrame(self.total1)
-      self.ph411.markdown(f"**Erzeugt**")
-      self.ph412.markdown(df1.to_html(escape=False, index=False), unsafe_allow_html=True)
+      for t in self.total:
+        dfs  = pd.DataFrame(t["daten"])
+        phs0 = st.empty()
+        phs1 = st.empty()
+        phs2 = st.empty()
 
-      df2 = pd.DataFrame(self.total2)
-      self.ph421.markdown(f"**solar_production**")
-      self.ph422.markdown(df2.to_html(escape=False, index=False), unsafe_allow_html=True)
+        phs0.markdown("<style>table th {text-align: left !important} .dataframe td:first-child, th:first-child {width: 200px !important} .dataframe td:nth-child(even) {text-align: right !important}</style>", unsafe_allow_html=True)
+        phs1.markdown(f"**{t["titel"]}**")
+        phs2.markdown(dfs.to_html(escape=False, index=False), unsafe_allow_html=True)
 
-      df3 = pd.DataFrame(self.total3)
-      self.ph431.markdown(f"**home_usage**")
-      self.ph432.markdown(df3.to_html(escape=False, index=False), unsafe_allow_html=True)
+# ----------------
+# Test
+# ----------------
+async def test(user, pw, country, numdays):
+  async with ClientSession() as session:
+      a = AnkerSolixInfo(user, pw, country, numdays, session)
+      # Async-Funktion synchron ausführen
+      await a.update_sites()
+      await a.ausgabe_graph()
+      return a
+#a = asyncio.run(test("user","pw", "DE", 100))
 
-      df4 = pd.DataFrame(self.total4)
-      self.ph441.markdown(f"**grid**")
-      self.ph442.markdown(df4.to_html(escape=False, index=False), unsafe_allow_html=True)
-  # ----------------
-  # Create Session
-  # ----------------
+# -------------
+# --- Session und Anmeldung nur beim ersten Mal
+# -------------
 async def create_session_and_update(user, pw, country, numdays):
   async with ClientSession() as session:
       a = AnkerSolixInfo(user, pw, country, numdays, session)
       # Async-Funktion synchron ausführen
       await a.update_sites()
-      #await a.ausgabe_graph()
       return a
 
-# 🔁 Definition einer synchronen Wrapper-Funktion für Streamlit, für multiselect
-def draw_graph():
-  if "a" not in st.session_state:
-    return
-  a = st.session_state["a"]
-  asyncio.run(a.ausgabe_graph())
-
-# --- Login-Status initialisieren (einmalig beim Start) ---
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if "a" not in st.session_state:
-    st.session_state.a = None
-
-# Platzhalter nur für Diagramme
-if "ph1" not in st.session_state:
-  st.session_state.ph1 = st.empty()
-  st.session_state.ph2 = st.empty()
-  st.session_state.ph3 = st.empty()
-
-# Kurven Auswahl, muss mit data.type übereinstimmen
-kurven = ["solar production", "home usage", "solarbank", "grid export"]
 # -------------
 # --- Start ---
 # -------------
-if not st.session_state.logged_in:
-  user     = st.text_input("User")
-  pw       = st.text_input("Passwort", type="password")
-  country  = "DE"
-  numdaysx = st.text_input("Anzahl Tage", value="100")
+async def start():
+    # Anmeldung beim ersten Mal
+    if not "a" in st.session_state:
+      user     = st.text_input("User")
+      pw       = st.text_input("Passwort", type="password")
+      country  = "DE"
+      numdaysx = st.text_input("Anzahl Tage", value="100")
 
-  if numdaysx.isdigit():
-      numdays = int(numdaysx)
-  else:
-      numdays = 10
+      if numdaysx.isdigit():
+        numdays = int(numdaysx)
+      else:
+        numdays = 10
 
-  if st.button("Anmelden"):
-    try:
-      a = asyncio.run(create_session_and_update(user, pw, country, numdays))
-      st.session_state["a"] = a  # <--- WICHTIG: speichern
-      st.success("Login erfolgreich!")
-      st.session_state.logged_in = True
-      # Neustart nach Anmeldung
-      st.rerun()
-    except Exception as e:
-      st.error(f"Anmeldefehler: {e}")
-else:
-  # ----------------------
-  # --- Nach Anmeldung ---
-  # ----------------------
-  st.multiselect(label="Kurve auswählen:",options=kurven,default=kurven,key="selected_curves",on_change=draw_graph)
-  a = st.session_state["a"]
-  asyncio.run(a.ausgabe_graph())
+      if st.button("Anmelden"):
+        try:
+          a = await create_session_and_update(user, pw, country, numdays)
+          st.session_state["a"] = a  # <--- WICHTIG: speichern
+          st.success("Login erfolgreich!")
+          st.session_state.logged_in = True
+          # Neustart nach Anmeldung
+          st.rerun()
+        except Exception as e:
+          st.error(f"Anmeldefehler: {e}")
+    else:
+      # ----------------------
+      # --- Nach der Anmeldung, Selektion Kurven,
+      # --- wird beim ersten Mal durch st.rerun() aufgerufen
+      # ----------------------
+      a = st.session_state["a"]
+      st.multiselect(label="Kurve auswählen:",options=a.kurven,default=a.kurven,key="selected_curves")
+      await a.ausgabe_graph()
+
+asyncio.run(start())
