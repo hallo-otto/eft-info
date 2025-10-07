@@ -100,8 +100,8 @@ class ETFVergleichInteractive:
     options.insert(0, "Alle")
     selected = st.multiselect("Wähle ETFs:", options, default="Alle")
 
-    self.title = "L"
-    self.input_type = "L"
+    #self.title = "L"
+    #self.input_type = "L"
     return self.input_type, selected
 
   # -----------------------------
