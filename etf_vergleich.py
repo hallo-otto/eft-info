@@ -39,6 +39,7 @@ class ETFVergleichInteractive:
           "IE00B6R52259": {"name": "iShare MSCI ACWI T"              , "kaufwert": 0        , "stueck": 0       , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                                           , "performance": -9999 , "df": None},
           "IE0001UQQ933": {"name": "Kommer Fond T"                   , "kaufwert": 0        , "stueck": 0       , "angelegt": ""           , "url": "https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"              , "performance": -9999 , "df": None}
     }
+
     self.liste_isin = []
     self.df_comparison = pd.DataFrame()
     self.input_type = "P"
@@ -240,13 +241,13 @@ class ETFVergleichInteractive:
       })
 
       # Erstellen Balkendiagramm
-      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)) : balken.append([isin, prz])
+      #if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)) : balken.append([isin + " - " + name, prz , url])
+      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name])
 
     # Sortieren
     data_sort   = sorted(data, key=lambda x: x.get("Name", ""))
     balken_sort = sorted(balken, key=lambda x: -x[1])
     return data_sort, balken_sort
-
 
   # -----------------------------
   # Funktion: Ausgabe Liste
@@ -269,33 +270,138 @@ class ETFVergleichInteractive:
     st.markdown("Aktuelle Kurse und Tageswechsel aus Ariva")
     st.markdown(df_liste.to_html(escape=False, index=False), unsafe_allow_html=True)
 
+    self.etf_liste_grafik(balken)
+
+  def etf_liste_grafik_t(self, balken):
+
+    # Plotly Graph Objects statt px.bar nutzen
+    fig = go.Figure()
+
+    for b in balken:
+      fig.add_trace(go.Bar(
+        x=[b[0]],
+        y=[b[1]],
+        marker_color= "red" if b[1] < 0 else "green",
+        customdata=[[b[3], b[4], b[1]]],  # Liste von Listen!
+        # Hier übergeben wir Zusatzinfos
+        hovertemplate=
+        "<b> ISIN:</b> %{customdata[0]}<br>" +
+        "<b> Name:</b> %{customdata[1]}<br>" +
+        "<b> Prz:</b> %{customdata[2]}<br>"  +
+        "<extra></extra>",
+        textposition="outside"
+      ))
+
+    fig.update_layout(
+      title="Interaktives Balkendiagramm",
+      clickmode="event+select",
+      showlegend=False
+    )
+
+    # plotly_events rendert das Diagramm UND gibt Klick-Daten zurück
+    clicked_points = plotly_events(fig, click_event=True, hover_event=False)
+
+    if clicked_points:
+      # kategorie = clicked_points[0]["x"]
+      # link = data.loc[data["Kategorie"] == kategorie, "Link"].values[0]
+      link = "https://www.ariva.de/etf/amundi-core-dax-ucits-etf-dist?utp=1"
+      st.write(f"Link: {link}")
+      #webbrowser.open(link)  # Achtung: Öffnet Browser außerhalb von Streamlit
+  # -----------------------------
+  # Funktion: Grafik zur Liste
+  # -----------------------------
+  def etf_liste_grafik(self, balken):
+    # Balkendiagramm
+    #st.title("ETF Übersicht")
+    fig = go.Figure()
+
+    for b in balken:
+      fig.add_trace(go.Bar(
+        x=[b[0]],
+        y=[b[1]],
+        name=b[0],
+        text=b[1],
+        marker_color= "red" if b[1] < 0 else "green",
+        customdata=[[b[3], b[4], b[1]]],  # Liste von Listen!
+        # Hier übergeben wir Zusatzinfos
+        hovertemplate=
+        " <b>ISIN:</b> %{customdata[0]} <br>" +
+        " <b>Name:</b> %{customdata[1]} <br>" +
+        " <b>Prz:</b> %{customdata[2]} <br>" +
+        "<extra></extra>",
+        textfont=dict(size=11),
+        textposition="outside"
+      ))
+
+    fig.update_layout(
+      title=dict(
+        text="ETF Übersicht",
+        font=dict(size=18, color="black"),
+        x=0.2
+      ),
+      margin=dict(l=10, r=0, t=50, b=0),
+      clickmode="event+select",
+      xaxis=dict(
+        tickangle=25,
+        automargin=True,
+        tickfont=dict(size=11),
+        showline=True,  # Achsenlinie anzeigen
+        showgrid=True,  # horizontale Gitterlinien
+        zeroline=True,  # Linie bei y=0
+        ticklabelposition = "outside top"  # << Schlüssel für rechtsbündig
+      ),
+      yaxis=dict(
+        tickfont=dict(size=11),
+        showline = True,  # Achsenlinie anzeigen
+        showgrid = True,  # horizontale Gitterlinien
+        zeroline = True,  # Linie bei y=0
+      ),
+      height=600,
+      width=1800,
+      autosize=False,  # zwingt Plotly, feste Größe zu verwenden
+      showlegend=False
+    )
+
+    # Diagramm anzeigen
+    #st.plotly_chart(fig, use_container_width=False)
+    st.plotly_chart(fig, use_container_width=False, width=1800, height=600)
+
+  # -----------------------------
+  # Funktion: Grafik1 zur Liste
+  # -----------------------------
+  def etf_liste_grafik1(self, balken):
     # Balkendiagramm
     insin   = []
     anstieg = []
+    url     = []
     colors  = []
     for b in balken:
       insin.append(b[0])
       anstieg.append(b[1])
+      url.append(b[2])
       colors.append ("red" if b[1] < 0 else "green")
 
-    fig, ax = plt.subplots(figsize=(16, 8))
+    fig, ax = plt.subplots(figsize=(36, 24))
     bars = ax.bar(insin, anstieg , color=colors)
-    ax.set_title("ETF Übersicht", fontsize=15)
-    ax.set_ylabel("Gewinn in %", fontsize=13)
+    ax.set_title("ETF Übersicht", fontsize=38, fontweight="bold")
+    ax.set_ylabel("Gewinn in %", fontsize=28)
 
     # --- 🎨 Rahmen entfernen ---
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     # x-Achse auf y=0 setzen
     ax.spines["bottom"].set_position("zero")
-    plt.xticks(rotation=20, ha="right", fontsize=13)
-    plt.yticks(fontsize=13)
+    # 1. Rotation, Schriftgröße und Abstand mit tick_params setzen
+    ax.tick_params(axis="x", rotation=25, labelsize=28, pad=10)
+    # 2. Horizontal alignment separat setzen
+    plt.setp(ax.get_xticklabels(), ha="right")
+    plt.yticks(fontsize=28)
 
     # Werte über Balken schreiben
     for bar in bars:
       yval = bar.get_height()
       pos  = 1 if yval > 0 else -5
-      ax.text(bar.get_x() + bar.get_width() / 2, yval + pos, f"{yval:.1f}%", ha='center', va='bottom', fontsize=13)
+      ax.text(bar.get_x() + bar.get_width() / 2, yval + pos, f"{yval:.1f}%", ha='center', va='bottom', fontsize=28)
 
     # Striche (Ticks) an den Achsen entfernen
     ax.tick_params(axis="both", which="both", length=0)
@@ -325,8 +431,8 @@ class ETFVergleichInteractive:
     rot = 0 if self.last_days <= 25 else 15
     # Ein Tag = 86400000 Millisekunden.
     # Also Tage = 3 * 86400000 = 259200000.
-    tage = math.ceil(self.last_days / 15) * 86400000
-    font = dict(size=12, color="black")
+    tage  = math.ceil(self.last_days / 15) * 86400000
+    font  = dict(size=12, color="black")
     font2 = dict(size=15, color="black")
     fig.update_xaxes(
       # dtick="D1",  # tägliche Ticks
@@ -348,26 +454,28 @@ class ETFVergleichInteractive:
     )
 
     fig.update_layout(
-      margin=dict(l=2, r=2, t=30, b=2),  # l=left, r=right, t=top, b=bottom
+      margin=dict(l=2, r=0, t=30, b=1),  # l=left, r=right, t=top, b=bottom
       title=f"ETF-{self.title} – der letzten {self.last_days} Tage",
       # xaxis_title="Datum",
       yaxis_title=self.title,
       title_font=font2,  # Schriftgröße des Titels
       xaxis_title_font=font,  # X-Achsen-Label kleiner
       yaxis_title_font=font,  # Y-Achsen-Label kleiner
-      height=600,
+      #width=1200,  # kleiner = weniger Platz für horizontale Legende
+      height=520,
       hovermode="x unified",
       legend=dict(
         title=dict(
           text="ETFs",  # Titel der Legende
           font=font  # Schriftart, Größe, Farbe
         ),
+        entrywidth=250,
         font=font,  # Legende
         orientation="h",  # horizontal
         yanchor="top",  # Ausrichtung oben
-        y=-0.12,  # Position etwas unterhalb der Grafik
-        xanchor="center",
-        x=0.45
+        y=-0.15,  # Position etwas unterhalb der Grafik
+        xanchor="left",
+        #x=0.0
       )
     )
     st.plotly_chart(fig, use_container_width=True)
