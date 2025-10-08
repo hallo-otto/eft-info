@@ -242,7 +242,7 @@ class ETFVergleichInteractive:
 
       # Erstellen Balkendiagramm
       #if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)) : balken.append([isin + " - " + name, prz , url])
-      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name])
+      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name, anstieg])
 
     # Sortieren
     data_sort   = sorted(data, key=lambda x: x.get("Name", ""))
@@ -281,13 +281,15 @@ class ETFVergleichInteractive:
       fig.add_trace(go.Bar(
         x=[b[0]],
         y=[b[1]],
+        text="aaaa",
+        namme="bbbb",
         marker_color= "red" if b[1] < 0 else "green",
-        customdata=[[b[3], b[4], b[1]]],  # Liste von Listen!
+        customdata=[[b[3], b[4], b[1], b[5]]],  # Liste von Listen!
         # Hier übergeben wir Zusatzinfos
         hovertemplate=
         "<b> ISIN:</b> %{customdata[0]}<br>" +
         "<b> Name:</b> %{customdata[1]}<br>" +
-        "<b> Prz:</b> %{customdata[2]}<br>"  +
+        "<b> Gewinn:</b> %{customdata[3]} (%{customdata[2]})<br>"  +
         "<extra></extra>",
         textposition="outside"
       ))
@@ -319,17 +321,16 @@ class ETFVergleichInteractive:
       fig.add_trace(go.Bar(
         x=[b[0]],
         y=[b[1]],
-        name=b[0],
-        text=b[1],
+        text=f"{b[1]:.2f}%",
         marker_color= "red" if b[1] < 0 else "green",
-        customdata=[[b[3], b[4], b[1]]],  # Liste von Listen!
+        customdata=[[b[3], b[4], b[1], b[5]]],  # Liste von Listen!
         # Hier übergeben wir Zusatzinfos
         hovertemplate=
         " <b>ISIN:</b> %{customdata[0]} <br>" +
         " <b>Name:</b> %{customdata[1]} <br>" +
-        " <b>Prz:</b> %{customdata[2]} <br>" +
+        " <b>Gewinn:</b> %{customdata[3]} (%{customdata[2]}%)<br>"  +
         "<extra></extra>",
-        textfont=dict(size=11),
+        textfont=dict(size=15),
         textposition="outside"
       ))
 
@@ -355,6 +356,7 @@ class ETFVergleichInteractive:
         showline = True,  # Achsenlinie anzeigen
         showgrid = True,  # horizontale Gitterlinien
         zeroline = True,  # Linie bei y=0
+        zerolinewidth=2   # Dicke der Nulllinie funktioniert nicht
       ),
       height=600,
       width=1800,
