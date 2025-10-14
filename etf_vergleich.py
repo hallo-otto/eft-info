@@ -35,13 +35,13 @@ class ETFVergleichInteractive:
           "DE0005933931": {"name": "ISHARES CORE DAX UCITS ETF DE D" , "kaufwert": 5023.78  , "stueck": 45       , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-core-dax-r-ucits-etf-de-eur-acc?utp=1"                                , "performance": -9999 , "df": None},
           "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA D"     , "kaufwert": 12820.96 , "stueck": 183.1511 , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                              , "performance": -9999 , "df": None},
           "IE00BF4RFH31": {"name": "ISHSIII-M.W.S.C.U.ETF DLA D"     , "kaufwert": 2004.84  , "stueck": 340      , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-msci-world-small-cap-ucits-etf-usd-acc?utp=1"                         , "performance": -9999 , "df": None},
-          "AT0000A347S9": {"name": "FIXED INCOME ONE R I"            , "kaufwert":19935.72  , "stueck":180       , "angelegt":" "  , "url":"https://www.ariva.de/fonds/fixed-income-one-r-a?utp=1"                                    , "performance": -9999 ,"df": None},
-          "AT0000A2B4T3": {"name": "GLOBALPORTFOLIOONE RT I"         , "kaufwert":43826.62  , "stueck":318       , "angelegt":" "  , "url":"https://www.ariva.de/fonds/globalportfolioone-rt?utp=1"                                   , "performance": -9999 ,"df": None},
-          "IE000BI8OT95": {"name": "AMUNDI CORE MSCI WLD UE A I"     , "kaufwert":18798.92  , "stueck":139.06889 , "angelegt":" "  , "url":"https://www.ariva.de/etf/amundi-core-msci-world-ucits-etf-acc?utp=1"                      , "performance": -9999 ,"df": None},
-          "IE00BKM4GZ66": {"name": "IS C.MSCI EMIMI U.ETF DLA I"     , "kaufwert":8768.22   , "stueck":294.18198 , "angelegt":" "  , "url":"https://www.ariva.de/etf/ishares-core-msci-em-imi-ucits-etf-usd-acc?utp=1"                , "performance": -9999 ,"df": None},
-          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA I"     , "kaufwert":7632.63   , "stueck":96.92865  , "angelegt":" "  , "url":"https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                 , "performance": -9999 ,"df": None},
-          "IE00B6R52259": {"name": "ISHSV-MSCI ACWI DL A I"          , "kaufwert":2000      , "stueck":24.64955  , "angelegt":" "  , "url":"https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                               , "performance": -9999 ,"df": None},
-          "IE0001UQQ933": {"name": "LG-GK MUL.EQ.E. DLA I"           , "kaufwert":19571.6   , "stueck":1616.07976, "angelegt":" "  , "url":"https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"  , "performance": -9999 ,"df": None},    }
+          "AT0000A347S9": {"name": "FIXED INCOME ONE R I"            , "kaufwert":19935.72  , "stueck":180       , "angelegt":"24.02.2025"  , "url":"https://www.ariva.de/fonds/fixed-income-one-r-a?utp=1"                                    , "performance": -9999 ,"df": None},
+          "AT0000A2B4T3": {"name": "GLOBALPORTFOLIOONE RT I"         , "kaufwert":43826.62  , "stueck":318       , "angelegt":"12.08.2024"  , "url":"https://www.ariva.de/fonds/globalportfolioone-rt?utp=1"                                   , "performance": -9999 ,"df": None},
+          "IE000BI8OT95": {"name": "AMUNDI CORE MSCI WLD UE A I"     , "kaufwert":18798.92  , "stueck":139.06889 , "angelegt":"05.03.2025"  , "url":"https://www.ariva.de/etf/amundi-core-msci-world-ucits-etf-acc?utp=1"                      , "performance": -9999 ,"df": None},
+          "IE00BKM4GZ66": {"name": "IS C.MSCI EMIMI U.ETF DLA I"     , "kaufwert":8768.22   , "stueck":294.18198 , "angelegt":"22.12.2023"  , "url":"https://www.ariva.de/etf/ishares-core-msci-em-imi-ucits-etf-usd-acc?utp=1"                , "performance": -9999 ,"df": None},
+          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA I"     , "kaufwert":7632.63   , "stueck":96.92865  , "angelegt":"28.10.2023"  , "url":"https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                 , "performance": -9999 ,"df": None},
+          "IE00B6R52259": {"name": "ISHSV-MSCI ACWI DL A I"          , "kaufwert":2000      , "stueck":24.64955  , "angelegt":"20.01.2025"  , "url":"https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                               , "performance": -9999 ,"df": None},
+          "IE0001UQQ933": {"name": "LG-GK MUL.EQ.E. DLA I"           , "kaufwert":19571.6   , "stueck":1616.07976, "angelegt":"11.08.2025"  , "url":"https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"  , "performance": -9999 ,"df": None},    }
 
     self.liste_isin = []
     self.df_comparison = pd.DataFrame()
@@ -245,12 +245,11 @@ class ETFVergleichInteractive:
 
       # Erstellen Balkendiagramm
       #if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)) : balken.append([isin + " - " + name, prz , url])
-      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name, anstieg])
+      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name, anstieg, angelegt])
 
     # Sortieren
     data_sort   = sorted(data, key=lambda x: x.get("Name", ""))
-    balken_sort = sorted(balken, key=lambda x: -x[1])
-    return data_sort, balken_sort
+    return data_sort, balken
 
   # -----------------------------
   # Funktion: Ausgabe Liste
@@ -273,65 +272,51 @@ class ETFVergleichInteractive:
     st.markdown("Aktuelle Kurse und Tageswechsel aus Ariva")
     st.markdown(df_liste.to_html(escape=False, index=False), unsafe_allow_html=True)
 
-    self.etf_liste_grafik(balken)
+    #Prozent
+    self.etf_liste_grafik(balken, 1)
+    #Absolute
+    self.etf_liste_grafik(balken, 5)
 
-  def etf_liste_grafik_t(self, balken):
-
-    # Plotly Graph Objects statt px.bar nutzen
-    fig = go.Figure()
-
-    for b in balken:
-      fig.add_trace(go.Bar(
-        x=[b[0]],
-        y=[b[1]],
-        text="aaaa",
-        namme="bbbb",
-        marker_color= "red" if b[1] < 0 else "green",
-        customdata=[[b[3], b[4], b[1], b[5]]],  # Liste von Listen!
-        # Hier übergeben wir Zusatzinfos
-        hovertemplate=
-        "<b> ISIN:</b> %{customdata[0]}<br>" +
-        "<b> Name:</b> %{customdata[1]}<br>" +
-        "<b> Gewinn:</b> %{customdata[3]} (%{customdata[2]})<br>"  +
-        "<extra></extra>",
-        textposition="outside"
-      ))
-
-    fig.update_layout(
-      title="Interaktives Balkendiagramm",
-      #clickmode="event+select",
-      showlegend=False
-    )
-
-    # plotly_events rendert das Diagramm UND gibt Klick-Daten zurück
-    clicked_points = plotly_events(fig, click_event=True, hover_event=False)
-
-    if clicked_points:
-      # kategorie = clicked_points[0]["x"]
-      # link = data.loc[data["Kategorie"] == kategorie, "Link"].values[0]
-      link = "https://www.ariva.de/etf/amundi-core-dax-ucits-etf-dist?utp=1"
-      st.write(f"Link: {link}")
-      #webbrowser.open(link)  # Achtung: Öffnet Browser außerhalb von Streamlit
   # -----------------------------
   # Funktion: Grafik zur Liste
   # -----------------------------
-  def etf_liste_grafik(self, balken):
+  def etf_liste_grafik(self, balken, ind):
     # Balkendiagramm
     #st.title("ETF Übersicht")
-    fig = go.Figure()
+    balken_sort = sorted(balken, key=lambda x: -x[ind])
+    text_teil   = "Prozent" if ind == 1 else "Absolut"
+    fig         = go.Figure()
+    summe       = 0
+    for b in balken_sort:
+      val    = b[ind]
+      gewinn = f"{b[5]:,.2f} ({b[1]:,.2f}%"
+      gewinn = gewinn.replace(",", "X").replace(".", ",").replace("X", ".")
+      summe += b[5]
 
-    for b in balken:
+      # 84bd00  132 189   0        grün
+      # e1e000  225 224   0        gelbgrün
+      lz = b[0][-1]
+      if val < 0:
+         color = "red"
+      elif lz == "D":
+         color = "#e1e000"
+      elif lz == "I":
+         color = "#84bd00"
+      else:
+         color = "green"
+
       fig.add_trace(go.Bar(
         x=[b[0]],
-        y=[b[1]],
-        text=f"<a href='{b[2]}'><span style='font-size:15px'>{b[1]:.2f}</span></a>",
-        marker_color= "red" if b[1] < 0 else "green",
-        customdata=[[b[3], b[4], b[1], b[5]]],  # Liste von Listen!
+        y=[val],
+        text=f"<a href='{b[2]}'><span style='font-size:15px'>{val:.2f}</span></a>",
+        marker_color= color,
+        customdata=[[b[3], b[4], gewinn, b[6]]],  # Liste von Listen!
         # Hier übergeben wir Zusatzinfos
         hovertemplate=
         " <b>ISIN:</b> %{customdata[0]} <br>" +
         " <b>Name:</b> %{customdata[1]} <br>" +
-        " <b>Gewinn:</b> %{customdata[3]} (%{customdata[2]}%)<br>"  +
+        " <b>Gewinn:</b> %{customdata[2]})<br>"  +
+        " <b>Angelegt:</b> %{customdata[3]}<br>" +
         "<extra></extra>",
         textfont=dict(size=15),
         textposition="outside"
@@ -339,7 +324,7 @@ class ETFVergleichInteractive:
 
     fig.update_layout(
       title=dict(
-        text="ETF Übersicht",
+        text=f"ETF Übersicht {text_teil}",
         font=dict(size=18, color="black"),
         x=0.2
       ),
@@ -371,47 +356,10 @@ class ETFVergleichInteractive:
     #st.plotly_chart(fig, use_container_width=False)
     st.plotly_chart(fig, use_container_width=False, width=2000, height=600)
 
-  # -----------------------------
-  # Funktion: Grafik1 zur Liste
-  # -----------------------------
-  def etf_liste_grafik1(self, balken):
-    # Balkendiagramm
-    insin   = []
-    anstieg = []
-    url     = []
-    colors  = []
-    for b in balken:
-      insin.append(b[0])
-      anstieg.append(b[1])
-      url.append(b[2])
-      colors.append ("red" if b[1] < 0 else "green")
+    if ind == 5:
+      s = f"{summe:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+      st.markdown(f"<span style='font-size:15px;'><b>Gesamt: </b>{s}</span>", unsafe_allow_html=True)
 
-    fig, ax = plt.subplots(figsize=(36, 24))
-    bars = ax.bar(insin, anstieg , color=colors)
-    ax.set_title("ETF Übersicht", fontsize=38, fontweight="bold")
-    ax.set_ylabel("Gewinn in %", fontsize=28)
-
-    # --- 🎨 Rahmen entfernen ---
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    # x-Achse auf y=0 setzen
-    ax.spines["bottom"].set_position("zero")
-    # 1. Rotation, Schriftgröße und Abstand mit tick_params setzen
-    ax.tick_params(axis="x", rotation=25, labelsize=28, pad=10)
-    # 2. Horizontal alignment separat setzen
-    plt.setp(ax.get_xticklabels(), ha="right")
-    plt.yticks(fontsize=28)
-
-    # Werte über Balken schreiben
-    for bar in bars:
-      yval = bar.get_height()
-      pos  = 1 if yval > 0 else -5
-      ax.text(bar.get_x() + bar.get_width() / 2, yval + pos, f"{yval:.1f}%", ha='center', va='bottom', fontsize=28)
-
-    # Striche (Ticks) an den Achsen entfernen
-    ax.tick_params(axis="both", which="both", length=0)
-
-    st.pyplot(fig)
 
   # -----------------------------
   # Funktion: Ausgabe Grafik
