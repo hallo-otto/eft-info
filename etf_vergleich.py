@@ -18,27 +18,30 @@ class ETFVergleichInteractive:
   def __init__(self):
     # Beispiel ETFs
     self.etfs = {
-          "LU2611732046": {"name": "AIS AMUNDI DAX ETF DIST C"       , "kaufwert": 12581.40 , "stueck": 115     , "angelegt": "15.12.2023" , "url": "https://www.ariva.de/etf/amundi-core-dax-ucits-etf-dist?utp=1"                                        , "performance": -9999 , "df": None},
-          "DE0008481763": {"name": "ALL.NEBENW.D A (EUR) C"          , "kaufwert": 54.87    , "stueck": 0.3     , "angelegt": "23.09.2011" , "url": "https://www.ariva.de/fonds/allianz-nebenwerte-deutschland-a-eur?utp=1"                                , "performance": -9999 , "df": None},
-          "DE0005190003": {"name": "BAY.MOTOREN WERKE AG ST C"       , "kaufwert": 2000.00  , "stueck": 18      , "angelegt": "01.07.2022" , "url": "https://www.ariva.de/aktien/bmw-ag-st-aktie?utp=1"                                                    , "performance": -9999 , "df": None},
-          "LU0171307068": {"name": "BGF-WLD HEALTHSC.NA.A2EO C"      , "kaufwert": 18878.79 , "stueck": 588     , "angelegt": "04.11.2013" , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-healthscience-fund-a2-eur/chart/chartanalyse" , "performance": -9999 , "df": None},
-          "LU0055631609": {"name": "BGF-WORLD GOLD A2DL C"           , "kaufwert": 4999.96  , "stueck": 95.81   , "angelegt": "26.09.2011" , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-gold-fund-a2-usd?utp=1"                       , "performance": -9999 , "df": None},
-          "FR0010135103": {"name": "CARMIGN.PATRIMOI. AEO ACC C"     , "kaufwert": 4999.31  , "stueck": 9.22    , "angelegt": "23.09.2011" , "url": "https://www.ariva.de/fonds/carmignac-patrimoine-a-eur-acc?utp=1"                                      , "performance": -9999 , "df": None},
-          "DE0008486655": {"name": "DWS CONCEPT GS+P FOOD LD C"      , "kaufwert": 4923.34  , "stueck": 22      , "angelegt": "15.03.2013" , "url": "https://www.ariva.de/fonds/dws-concept-gs-p-food-ld?utp=1"                                            , "performance": -9999 , "df": None},
-          "LU0323578657": {"name": "FLOSSB.V.STORCH-MUL.OPP.R C"     , "kaufwert": 1913.60  , "stueck": 8       , "angelegt": "29.11.2017" , "url": "https://www.ariva.de/fonds/flossbach-von-storch-sicav-multiple-opportunities-r?utp=1"                 , "performance": -9999 , "df": None},
-          "IE00BYZK4552": {"name": "ISHS IV-AUTO.+ROBOTIC.ETF C"     , "kaufwert": 2349.16  , "stueck": 220     , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/ishares-automation-robotics-ucits-etf-usd-acc?utp=1"                         , "performance": -9999 , "df": None},
-          "IE00B43HR379": {"name": "ISHSV-S+P500H.CA.SECT.DLA C"     , "kaufwert": 991.51   , "stueck": 130     , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/ishares-s-p-500-health-care-sector-ucits-etf-usd-acc?utp=1"                  , "performance": -9999 , "df": None},
-          "IE00BMYDM794": {"name": "LGUE-HYDR.ECO. DLA C"            , "kaufwert": 2303.70  , "stueck": 300     , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/l-g-hydrogen-economy-ucits-etf-usd-acc-etf?utp=1"                            , "performance": -9999 , "df": None},
-          "DE000SH9VRM6": {"name": "SGIS AKTANL PL 24/26 NVDA C"     , "kaufwert": 1000.00  , "stueck": 100     , "angelegt": "20.01.2025" , "url": "https://www.ariva.de/zertifikate/SH9VRM?utp=1"                                                        , "performance": -9999 , "df": None},
-          "IE00BM67HT60": {"name": "X(IE)-MSCI WO.IN.TE. 1CDL C"     , "kaufwert": 2391.50  , "stueck": 50      , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/xtrackers-msci-world-information-technology-ucits-etf-1c?utp=1"              , "performance": -9999 , "df": None},
-          "LU1681043599": {"name": "AIS-AM.MSCI WLD S. UE EOA D"     , "kaufwert": 9809.94  , "stueck": 26      , "angelegt": ""           , "url": "https://www.ariva.de/etf/amundi-msci-world-swap-ucits-etf-eur-acc?utp=1"                               , "performance": -9999 , "df": None},
-          "DE0005933931": {"name": "ISHARES CORE DAX UCITS ETF DE D" , "kaufwert": 5023.78  , "stueck": 45      , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-core-dax-r-ucits-etf-de-eur-acc?utp=1"                                , "performance": -9999 , "df": None},
-          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA D"     , "kaufwert": 12820.96 , "stueck": 183.1511, "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                              , "performance": -9999 , "df": None},
-          "IE00BF4RFH31": {"name": "ISHSIII-M.W.S.C.U.ETF DLA D"     , "kaufwert": 2004.84  , "stueck": 340     , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-msci-world-small-cap-ucits-etf-usd-acc?utp=1"                         , "performance": -9999 , "df": None},
-          "FR0010655712": {"name": "Amundi DAX UCITS ETF DR (V) T"   , "kaufwert": 0        , "stueck": 0       , "angelegt": ""           , "url": "https://www.ariva.de/etf/amundi-etf-dax-ucits-etf-dr?utp=1"                                           , "performance": -9999 , "df": None},
-          "IE00B6R52259": {"name": "iShare MSCI ACWI T"              , "kaufwert": 0        , "stueck": 0       , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                                           , "performance": -9999 , "df": None},
-          "IE0001UQQ933": {"name": "Kommer Fond T"                   , "kaufwert": 0        , "stueck": 0       , "angelegt": ""           , "url": "https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"              , "performance": -9999 , "df": None}
-    }
+          "LU2611732046": {"name": "AIS AMUNDI DAX ETF DIST C"       , "kaufwert": 12581.40 , "stueck": 115      , "angelegt": "15.12.2023" , "url": "https://www.ariva.de/etf/amundi-core-dax-ucits-etf-dist?utp=1"                                        , "performance": -9999 , "df": None},
+          "DE0008481763": {"name": "ALL.NEBENW.D A (EUR) C"          , "kaufwert": 54.87    , "stueck": 0.3      , "angelegt": "23.09.2011" , "url": "https://www.ariva.de/fonds/allianz-nebenwerte-deutschland-a-eur?utp=1"                                , "performance": -9999 , "df": None},
+          "DE0005190003": {"name": "BAY.MOTOREN WERKE AG ST C"       , "kaufwert": 2000.00  , "stueck": 18       , "angelegt": "01.07.2022" , "url": "https://www.ariva.de/aktien/bmw-ag-st-aktie?utp=1"                                                    , "performance": -9999 , "df": None},
+          "LU0171307068": {"name": "BGF-WLD HEALTHSC.NA.A2EO C"      , "kaufwert": 18878.79 , "stueck": 588      , "angelegt": "04.11.2013" , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-healthscience-fund-a2-eur/chart/chartanalyse" , "performance": -9999 , "df": None},
+          "LU0055631609": {"name": "BGF-WORLD GOLD A2DL C"           , "kaufwert": 4999.96  , "stueck": 95.81    , "angelegt": "26.09.2011" , "url": "https://www.ariva.de/fonds/blackrock-global-funds-world-gold-fund-a2-usd?utp=1"                       , "performance": -9999 , "df": None},
+          "FR0010135103": {"name": "CARMIGN.PATRIMOI. AEO ACC C"     , "kaufwert": 4999.31  , "stueck": 9.22     , "angelegt": "23.09.2011" , "url": "https://www.ariva.de/fonds/carmignac-patrimoine-a-eur-acc?utp=1"                                      , "performance": -9999 , "df": None},
+          "DE0008486655": {"name": "DWS CONCEPT GS+P FOOD LD C"      , "kaufwert": 4923.34  , "stueck": 22       , "angelegt": "15.03.2013" , "url": "https://www.ariva.de/fonds/dws-concept-gs-p-food-ld?utp=1"                                            , "performance": -9999 , "df": None},
+          "LU0323578657": {"name": "FLOSSB.V.STORCH-MUL.OPP.R C"     , "kaufwert": 1913.60  , "stueck": 8        , "angelegt": "29.11.2017" , "url": "https://www.ariva.de/fonds/flossbach-von-storch-sicav-multiple-opportunities-r?utp=1"                 , "performance": -9999 , "df": None},
+          "IE00BYZK4552": {"name": "ISHS IV-AUTO.+ROBOTIC.ETF C"     , "kaufwert": 2349.16  , "stueck": 220      , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/ishares-automation-robotics-ucits-etf-usd-acc?utp=1"                         , "performance": -9999 , "df": None},
+          "IE00B43HR379": {"name": "ISHSV-S+P500H.CA.SECT.DLA C"     , "kaufwert": 991.51   , "stueck": 130      , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/ishares-s-p-500-health-care-sector-ucits-etf-usd-acc?utp=1"                  , "performance": -9999 , "df": None},
+          "IE00BMYDM794": {"name": "LGUE-HYDR.ECO. DLA C"            , "kaufwert": 2303.70  , "stueck": 300      , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/l-g-hydrogen-economy-ucits-etf-usd-acc-etf?utp=1"                            , "performance": -9999 , "df": None},
+          "DE000SH9VRM6": {"name": "SGIS AKTANL PL 24/26 NVDA C"     , "kaufwert": 1000.00  , "stueck": 100      , "angelegt": "20.01.2025" , "url": "https://www.ariva.de/zertifikate/SH9VRM?utp=1"                                                        , "performance": -9999 , "df": None},
+          "IE00BM67HT60": {"name": "X(IE)-MSCI WO.IN.TE. 1CDL C"     , "kaufwert": 2391.50  , "stueck": 50       , "angelegt": "21.04.2021" , "url": "https://www.ariva.de/etf/xtrackers-msci-world-information-technology-ucits-etf-1c?utp=1"              , "performance": -9999 , "df": None},
+          "LU1681043599": {"name": "AIS-AM.MSCI WLD S. UE EOA D"     , "kaufwert": 9809.94  , "stueck": 26       , "angelegt": ""           , "url": "https://www.ariva.de/etf/amundi-msci-world-swap-ucits-etf-eur-acc?utp=1"                               , "performance": -9999 , "df": None},
+          "DE0005933931": {"name": "ISHARES CORE DAX UCITS ETF DE D" , "kaufwert": 5023.78  , "stueck": 45       , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-core-dax-r-ucits-etf-de-eur-acc?utp=1"                                , "performance": -9999 , "df": None},
+          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA D"     , "kaufwert": 12820.96 , "stueck": 183.1511 , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                              , "performance": -9999 , "df": None},
+          "IE00BF4RFH31": {"name": "ISHSIII-M.W.S.C.U.ETF DLA D"     , "kaufwert": 2004.84  , "stueck": 340      , "angelegt": ""           , "url": "https://www.ariva.de/etf/ishares-msci-world-small-cap-ucits-etf-usd-acc?utp=1"                         , "performance": -9999 , "df": None},
+          "AT0000A347S9": {"name": "FIXED INCOME ONE R I"            , "kaufwert":19935.72  , "stueck":180       , "angelegt":" "  , "url":"https://www.ariva.de/fonds/fixed-income-one-r-a?utp=1"                                    , "performance": -9999 ,"df": None},
+          "AT0000A2B4T3": {"name": "GLOBALPORTFOLIOONE RT I"         , "kaufwert":43826.62  , "stueck":318       , "angelegt":" "  , "url":"https://www.ariva.de/fonds/globalportfolioone-rt?utp=1"                                   , "performance": -9999 ,"df": None},
+          "IE000BI8OT95": {"name": "AMUNDI CORE MSCI WLD UE A I"     , "kaufwert":18798.92  , "stueck":139.06889 , "angelegt":" "  , "url":"https://www.ariva.de/etf/amundi-core-msci-world-ucits-etf-acc?utp=1"                      , "performance": -9999 ,"df": None},
+          "IE00BKM4GZ66": {"name": "IS C.MSCI EMIMI U.ETF DLA I"     , "kaufwert":8768.22   , "stueck":294.18198 , "angelegt":" "  , "url":"https://www.ariva.de/etf/ishares-core-msci-em-imi-ucits-etf-usd-acc?utp=1"                , "performance": -9999 ,"df": None},
+          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA I"     , "kaufwert":7632.63   , "stueck":96.92865  , "angelegt":" "  , "url":"https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                 , "performance": -9999 ,"df": None},
+          "IE00B6R52259": {"name": "ISHSV-MSCI ACWI DL A I"          , "kaufwert":2000      , "stueck":24.64955  , "angelegt":" "  , "url":"https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                               , "performance": -9999 ,"df": None},
+          "IE0001UQQ933": {"name": "LG-GK MUL.EQ.E. DLA I"           , "kaufwert":19571.6   , "stueck":1616.07976, "angelegt":" "  , "url":"https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"  , "performance": -9999 ,"df": None},    }
 
     self.liste_isin = []
     self.df_comparison = pd.DataFrame()
@@ -296,7 +299,7 @@ class ETFVergleichInteractive:
 
     fig.update_layout(
       title="Interaktives Balkendiagramm",
-      clickmode="event+select",
+      #clickmode="event+select",
       showlegend=False
     )
 
@@ -321,7 +324,7 @@ class ETFVergleichInteractive:
       fig.add_trace(go.Bar(
         x=[b[0]],
         y=[b[1]],
-        text=f"{b[1]:.2f}%",
+        text=f"<a href='{b[2]}'><span style='font-size:15px'>{b[1]:.2f}</span></a>",
         marker_color= "red" if b[1] < 0 else "green",
         customdata=[[b[3], b[4], b[1], b[5]]],  # Liste von Listen!
         # Hier übergeben wir Zusatzinfos
@@ -359,14 +362,14 @@ class ETFVergleichInteractive:
         zerolinewidth=2   # Dicke der Nulllinie funktioniert nicht
       ),
       height=600,
-      width=1800,
+      width=2000,
       autosize=False,  # zwingt Plotly, feste Größe zu verwenden
       showlegend=False
     )
 
     # Diagramm anzeigen
     #st.plotly_chart(fig, use_container_width=False)
-    st.plotly_chart(fig, use_container_width=False, width=1800, height=600)
+    st.plotly_chart(fig, use_container_width=False, width=2000, height=600)
 
   # -----------------------------
   # Funktion: Grafik1 zur Liste
