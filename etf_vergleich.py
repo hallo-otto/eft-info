@@ -36,13 +36,13 @@ class ETFVergleichInteractive:
           "DE0005933931": {"name": "ISHARES CORE DAX UCITS ETF DE D" , "kaufwert": 5023.78  , "stueck": 45       , "angelegt": "27.06.2022" , "url": "https://www.ariva.de/etf/ishares-core-dax-r-ucits-etf-de-eur-acc?utp=1"                                , "performance": -9999 , "df": None},
           "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA D"     , "kaufwert": 12820.96 , "stueck": 183.1511 , "angelegt": "30.04.2021" , "url": "https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                              , "performance": -9999 , "df": None},
           "IE00BF4RFH31": {"name": "ISHSIII-M.W.S.C.U.ETF DLA D"     , "kaufwert": 2004.84  , "stueck": 340      , "angelegt": "20.07.2022" , "url": "https://www.ariva.de/etf/ishares-msci-world-small-cap-ucits-etf-usd-acc?utp=1"                         , "performance": -9999 , "df": None},
-          "AT0000A347S9": {"name": "FIXED INCOME ONE R I"            , "kaufwert":19935.72  , "stueck":180       , "angelegt": "24.02.2025" , "url":"https://www.ariva.de/fonds/fixed-income-one-r-a?utp=1"                                    , "performance": -9999 ,"df": None},
-          "AT0000A2B4T3": {"name": "GLOBALPORTFOLIOONE RT I"         , "kaufwert":43826.62  , "stueck":318       , "angelegt": "12.08.2024" , "url":"https://www.ariva.de/fonds/globalportfolioone-rt?utp=1"                                   , "performance": -9999 ,"df": None},
-          "IE000BI8OT95": {"name": "AMUNDI CORE MSCI WLD UE A I"     , "kaufwert":18798.92  , "stueck":139.06889 , "angelegt": "05.03.2025" , "url":"https://www.ariva.de/etf/amundi-core-msci-world-ucits-etf-acc?utp=1"                      , "performance": -9999 ,"df": None},
-          "IE00BKM4GZ66": {"name": "IS C.MSCI EMIMI U.ETF DLA I"     , "kaufwert":8768.22   , "stueck":294.18198 , "angelegt": "22.12.2023" , "url":"https://www.ariva.de/etf/ishares-core-msci-em-imi-ucits-etf-usd-acc?utp=1"                , "performance": -9999 ,"df": None},
-          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA I"     , "kaufwert":7632.63   , "stueck":96.92865  , "angelegt": "28.10.2023" , "url":"https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                 , "performance": -9999 ,"df": None},
-          "IE00B6R52259": {"name": "ISHSV-MSCI ACWI DL A I"          , "kaufwert":2000      , "stueck":24.64955  , "angelegt": "20.01.2025" , "url":"https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                               , "performance": -9999 ,"df": None},
-          "IE0001UQQ933": {"name": "LG-GK MUL.EQ.E. DLA I"           , "kaufwert":19571.6   , "stueck":1616.07976, "angelegt": "11.08.2025" , "url":"https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"  , "performance": -9999 ,"df": None},    }
+          "AT0000A347S9": {"name": "FIXED INCOME ONE R I"            , "kaufwert":19935.72  , "stueck": 180      , "angelegt": "24.02.2025" , "url":"https://www.ariva.de/fonds/fixed-income-one-r-a?utp=1"                                    , "performance": -9999 ,"df": None},
+          "AT0000A2B4T3": {"name": "GLOBALPORTFOLIOONE RT I"         , "kaufwert":43826.62  , "stueck": 318      , "angelegt": "12.08.2024" , "url":"https://www.ariva.de/fonds/globalportfolioone-rt?utp=1"                                   , "performance": -9999 ,"df": None},
+          "IE000BI8OT95": {"name": "AMUNDI CORE MSCI WLD UE A I"     , "kaufwert":18798.92  , "stueck": 139.06889, "angelegt": "05.03.2025" , "url":"https://www.ariva.de/etf/amundi-core-msci-world-ucits-etf-acc?utp=1"                      , "performance": -9999 ,"df": None},
+          "IE00BKM4GZ66": {"name": "IS C.MSCI EMIMI U.ETF DLA I"     , "kaufwert":8768.22   , "stueck": 294.18198, "angelegt": "22.12.2023" , "url":"https://www.ariva.de/etf/ishares-core-msci-em-imi-ucits-etf-usd-acc?utp=1"                , "performance": -9999 ,"df": None},
+          "IE00B4L5Y983": {"name": "ISHSIII-CORE MSCI WLD DLA I"     , "kaufwert":7632.63   , "stueck": 96.92865 , "angelegt": "28.10.2023" , "url":"https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc?utp=1"                 , "performance": -9999 ,"df": None},
+          "IE00B6R52259": {"name": "ISHSV-MSCI ACWI DL A I"          , "kaufwert":2000      , "stueck": 24.64955 , "angelegt": "20.01.2025" , "url":"https://www.ariva.de/etf/ishares-msci-acwi-ucits-etf?utp=1"                               , "performance": -9999 ,"df": None},
+          "IE0001UQQ933": {"name": "LG-GK MUL.EQ.E. DLA I"           , "kaufwert":40124.37  , "stueck": 3251.51194,"angelegt": "23.08.2025" , "url":"https://www.ariva.de/etf/l-g-gerd-kommer-multifactor-equity-ucits-etf-usd-acc-etf?utp=1"  , "performance": -9999 ,"df": None},    }
 
     self.liste_isin = []
     self.df_comparison = pd.DataFrame()
@@ -230,8 +230,10 @@ class ETFVergleichInteractive:
 
       anstieg, prz, anstieg_color = None, None, "#f1cd00"
       if isinstance(kurs, (int, float)) and kauf > 0:
-        anstieg = round(stueck*kurs - kauf,2)
-        prz     = round(100 * anstieg / kauf, 2)
+        gewinn     = stueck*kurs
+        gewinn_fmt = f"{int(round(gewinn, 0)):,}".replace(",", ".")
+        anstieg    = round(gewinn - kauf,2)
+        prz        = round(100 * anstieg / kauf, 2)
         anstieg_color = "green" if anstieg > 0 else ("red" if anstieg < 0 else "#f1cd00")
 
       data.append({
@@ -241,7 +243,8 @@ class ETFVergleichInteractive:
         "Absoluter Tageswechsel (EUR)": f"<span style='color:{kurs_color}'>{abs_change}</span>",
         "Relativer Tageswechsel (%)":   f"<span style='color:{kurs_color}'>{rel_change}</span>",
         "Stück"   : round(stueck,2),
-        "Kaufwert": kauf,
+        "Kaufwert": kauf_fmt,
+        "Wert"    : gewinn_fmt,
         "Anstieg" : f"<span style='color:{anstieg_color}'>{anstieg}</span>",
         "Anstieg%": f"<span style='color:{anstieg_color}'>{prz}</span>",
         "Angelegt": angelegt
@@ -249,7 +252,7 @@ class ETFVergleichInteractive:
 
       # Erstellen Balkendiagramm
       #if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)) : balken.append([isin + " - " + name, prz , url])
-      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name, anstieg, angelegt, tage_fmt, round(365*anstieg/tage,2), kauf_fmt])
+      if isinstance(prz, (int, float)) and isinstance(abs_change, (int, float)): balken.append([isin + " - " + name, prz, url, isin, name, anstieg, angelegt, tage_fmt, round(365*anstieg/tage,2), kauf_fmt, gewinn_fmt])
 
     # Sortieren
     data_sort   = sorted(data, key=lambda x: x.get("Name", ""))
@@ -296,10 +299,11 @@ class ETFVergleichInteractive:
     summe       = 0
 
     for b in balken_sort:
-      val    = b[ind]
-      gewinn = f"{b[5]:,.2f} ({b[1]:,.2f}%"
-      gewinn = gewinn.replace(",", "X").replace(".", ",").replace("X", ".")
-      summe += b[5]
+      val     = b[ind]
+      val_fmt = f"{val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+      gewinn  = f"{b[5]:,.2f} ({b[1]:,.2f}%"
+      gewinn  = gewinn.replace(",", "X").replace(".", ",").replace("X", ".")
+      summe  += b[5]
 
       # 84bd00  132 189   0        grün
       # e1e000  225 224   0        gelbgrün
@@ -316,14 +320,14 @@ class ETFVergleichInteractive:
       fig.add_trace(go.Bar(
         x=[b[0]],
         y=[val],
-        text=f"<a href='{b[2]}'><span style='font-size:15px'>{val:.2f}</span></a>",
+        text=f"<a href='{b[2]}'><span style='font-size:15px'>{val_fmt}</span></a>",
         marker_color= color,
-        customdata=[[b[3], b[4], gewinn, b[6], b[7], b[9]]],  # Liste von Listen!
+        customdata=[[b[3], b[4], gewinn, b[6], b[7], b[9], b[10]]],  # Liste von Listen!
         # Hier übergeben wir Zusatzinfos
         hovertemplate=
         " <b>ISIN:</b> %{customdata[0]} <br>" +
         " <b>Name:</b> %{customdata[1]} <br>" +
-        " <b>Gewinn:</b> %{customdata[2]})<br>"  +
+        " <b>Gewinn:</b> %{customdata[6]}€ %{customdata[2]})<br>"  +
         " <b>Angelegt:</b> %{customdata[5]}€ am:%{customdata[3]} (%{customdata[4]})<br>" +
         "<extra></extra>",
         textfont=dict(size=15),
@@ -356,14 +360,14 @@ class ETFVergleichInteractive:
         zerolinewidth=2   # Dicke der Nulllinie funktioniert nicht
       ),
       height=600,
-      width=2000,
+      width=1500,
       autosize=False,  # zwingt Plotly, feste Größe zu verwenden
       showlegend=False
     )
 
     # Diagramm anzeigen
     #st.plotly_chart(fig, use_container_width=False)
-    st.plotly_chart(fig, use_container_width=False, width=2000, height=600)
+    st.plotly_chart(fig, use_container_width=False, width=1500, height=600)
 
     if ind == 5:
       s = f"{summe:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
