@@ -294,6 +294,7 @@ class ETFVergleichInteractive:
     text_teil   = mapping[ind]
     fig         = go.Figure()
     summe       = 0
+
     for b in balken_sort:
       val    = b[ind]
       gewinn = f"{b[5]:,.2f} ({b[1]:,.2f}%"
@@ -337,7 +338,7 @@ class ETFVergleichInteractive:
       ),
       margin=dict(l=10, r=0, t=50, b=0),
       #clickmode="event+select",
-      clickmode="none",
+      clickmode="event",
       xaxis=dict(
         tickangle=25,
         automargin=True,
