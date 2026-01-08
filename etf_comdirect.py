@@ -20,8 +20,8 @@ from matplotlib import pyplot as plt
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 # --- Mapping ISIN → {Name, ID_NOTATION} ---
-fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",  "id": "486784471", "ST":40, "CHF":5509.37486,  "EUR":5109.86259, "date":["03.11.25", "02.01.26"], "kurs":[132.91, 142.55]},
-                 "LI1439616825": {"name": "PI Physical Silver Fund","id": "486784472", "ST":46, "CHF":7654.117918, "EUR":7098.92711, "date":["03.11.25", "02.01.26"], "kurs":[128.43, 195.59]},
+fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",  "id": "486784471", "ST":40, "CHF": 5509.37 , "EUR": 5940.91 , "date":["03.11.25", "07.01.26"], "kurs":[132.91, 142.55]},
+                 "LI1439616825": {"name": "PI Physical Silver Fund","id": "486784472", "ST":46, "CHF": 7654.12 , "EUR": 8252.73 , "date":["03.11.25", "07.01.26"], "kurs":[128.43, 195.59]},
 }
 
 # --- Funktion: Chart laden ---
