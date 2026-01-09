@@ -66,8 +66,8 @@ def load_chart(isin, time_span, html):
     f"&ID_NOTATION={id_notation}"
     f"&TIME_SPAN={time_span}"
     f"&TYPE=MOUNTAIN"
-    f"&WIDTH=500"
-    f"&HEIGHT=200"
+    f"&WIDTH=600"
+    f"&HEIGHT=300"
   )
 
   r = requests.get(url, headers=HEADERS)
@@ -125,7 +125,7 @@ def sparkline(xdates, kurs, aktueller_kurs, width=80, height=20, line_color="#1f
         color = "#1f77b4"  # neutral/Blau
 
   # Mini-Chart erzeugen
-  fig, ax = plt.subplots(figsize=(width / 80, height / 100))
+  fig, ax = plt.subplots(figsize=(width / 80, height / 80))
   ax.plot(dates, values, linewidth=1.1, color=line_color)
 
   # Optional letzten Punkt markieren
@@ -149,7 +149,7 @@ def sparkline(xdates, kurs, aktueller_kurs, width=80, height=20, line_color="#1f
 
 # --- Streamlit-App ---
 st.set_page_config(layout="wide")
-st.title("Fonds-Vergleich")
+st.title("Fonds-Übersicht")
 
 isins = list(fonds_mapping.keys())
 time_spans = [("10 Tage", "10D"), ("3 Monate", "3M"), ("6 Monate", "6M")]
@@ -165,7 +165,7 @@ for isin in isins:
   #print(info["kurs"])
 
   svg = sparkline(info["date"], info["kurs"], kurs)
-  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 25px;'>Kurs: {kurs}{svg}Diff: {diff}({prz})   Info: {text}</span></div>", unsafe_allow_html=True)
+  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 25px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 20px;'>Kurs: {kurs}{svg}Diff: {diff}({prz})   Info: {text}</span></div>", unsafe_allow_html=True)
 
   # 3 Charts nebeneinander
   cols = st.columns(3)
