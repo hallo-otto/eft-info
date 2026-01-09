@@ -94,7 +94,7 @@ def load_kurs(html):
   else:
     print("Kurs nicht gefunden")
 
-  return aktueller_kurs, f"{diff:,.2f}CHF", f"{prz:,.2f}%"
+  return aktueller_kurs, f"{diff:,.0f}CHF", f"{prz:,.2f}%"
 
 # Sparline
 def sparkline(xdates, kurs, aktueller_kurs, width=80, height=20, line_color="#1f77b4", mark_last=True):
@@ -156,8 +156,8 @@ time_spans = [("10 Tage", "10D"), ("3 Monate", "3M"), ("6 Monate", "6M")]
 
 for isin in isins:
   info = fonds_mapping[isin]
-  text = f"{info["date"][0]}({info["kurs"][0]})"
-  text += f" {info["date"][1]}({info["kurs"][1]})"
+  text  = f"{info["date"][0]} ({info["kurs"][0]})"
+  text += f"&nbsp;&nbsp; {info["date"][1]} ({info["kurs"][1]})"
   # html Seite nur einmal laden
   html = load_fonds_page(isin)
 
@@ -165,7 +165,7 @@ for isin in isins:
   #print(info["kurs"])
 
   svg = sparkline(info["date"], info["kurs"], kurs)
-  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 25px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 20px;'>Kurs: {kurs}{svg}Diff: {diff}({prz})   Info: {text}</span></div>", unsafe_allow_html=True)
+  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 18px;'>Kurs: {kurs}{svg}Diff: {diff} ({prz})  &nbsp;&nbsp;&nbsp; Info: {text}</span></div>", unsafe_allow_html=True)
 
   # 3 Charts nebeneinander
   cols = st.columns(3)
