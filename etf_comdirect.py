@@ -26,6 +26,10 @@ HEADERS = {"User-Agent": "Mozilla/5.0"}
 # --- Mapping ISIN → {Name, ID_NOTATION} --- 506766981
 fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",   "ST":40, "CHF": 5509.37 , "EUR": 5940.91 , "date":["03.11.25", "07.01.26"], "kurs":[132.91, 142.55]},
                  "LI1439616825": {"name": "PI Physical Silver Fund", "ST":46, "CHF": 7654.12 , "EUR": 8252.73 , "date":["03.11.25", "07.01.26"], "kurs":[128.43, 195.59]},
+                 "LU2611732046": {"name": "Amundi Core DAX - UCITS ETF"},
+                 "IE00BM67HT60": {"name": "Xtrackers MSCI World"},
+                 "IE00B43HR379": {"name": "iShares S&P 500 Health"},
+                 "LU0323578657": {"name": "Flossbach von Storch"},
 }
 
 # --- HTML einmal laden pro ISIN ---
@@ -76,25 +80,33 @@ def load_chart(isin, time_span, html):
   return Image.open(BytesIO(r.content))
 
 # --- Funktion: Chart laden ---
-def load_kurs(html):
+def load_kurs(html,info):
   # kurs
   soup = BeautifulSoup(html, "html.parser")
 
-  # Aktueller Kurs
+  # Aktueller Kurs                            text-size--xxlarge text-weight--medium
   kurs_span = soup.find("span", class_="text-size--xxlarge text-weight--medium")
+  whg_span = soup.find("span", class_="text-size--medium outer-spacing--small-top")
+  #print(isin)
+  #print(kurs_span)
   aktueller_kurs = None
-  diff,prz = 0,0
+  st,chf,diff,prz,whg = 0,0,0,0,""
   if kurs_span:
     aktueller_kurs = kurs_span.get_text(strip=True)
-    st   = fonds_mapping[isin]["ST"]
-    chf  = fonds_mapping[isin]["CHF"]
+
+    if "ST"  in info : st  = info["ST"]
+    if "CHF" in info : chf = info["CHF"]
     diff = st * float(aktueller_kurs) - chf
-    prz  = (100 * diff / chf)
+    if chf!=0: prz  = (100 * diff / chf)
     #print("Aktueller Kurs:", aktueller_kurs)
   else:
     print("Kurs nicht gefunden")
+  if whg_span:
+    whg = whg_span.get_text(strip=True)
+  else:
+    whg = ""
 
-  return aktueller_kurs, f"{diff:,.0f}CHF", f"{prz:,.2f}%"
+  return aktueller_kurs, whg, f"{diff:,.0f}CHF", f"{prz:,.2f}%"
 
 # Sparline
 def sparkline(xdates, kurs, aktueller_kurs, width=80, height=20, line_color="#1f77b4", mark_last=True):
@@ -152,23 +164,26 @@ st.set_page_config(layout="wide")
 st.title("Fonds-Übersicht")
 
 isins = list(fonds_mapping.keys())
-time_spans = [("10 Tage", "10D"), ("3 Monate", "3M"), ("6 Monate", "6M")]
+time_spans = [("10 Tage", "10D"), ("3 Monate", "3M"), ("6 Monate", "6M"), ("1 Jahr", "1Y")]
 
 for isin in isins:
   info = fonds_mapping[isin]
-  text  = f"{info["date"][0]} ({info["kurs"][0]})"
-  text += f"&nbsp;&nbsp; {info["date"][1]} ({info["kurs"][1]})"
   # html Seite nur einmal laden
   html = load_fonds_page(isin)
 
-  kurs,diff,prz = load_kurs(html)
+  kurs, whg, diff, prz = load_kurs(html,info)
   #print(info["kurs"])
 
-  svg = sparkline(info["date"], info["kurs"], kurs)
-  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 17px;'>Kurs: {kurs}{svg}Diff: {diff} ({prz})  &nbsp;&nbsp;&nbsp; Info: {text}</span></div>", unsafe_allow_html=True)
+  if "date" in info:
+    text  = f"{info["date"][0]} ({info["kurs"][0]})"
+    text += f"&nbsp;&nbsp; {info["date"][1]} ({info["kurs"][1]})"
+    svg   = sparkline(info["date"], info["kurs"], kurs)
+    st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 17px;'>Kurs: {kurs}{whg}{svg}Diff: {diff} ({prz})  &nbsp;&nbsp;&nbsp; Info: {text}</span></div>", unsafe_allow_html=True)
+  else:
+    st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 17px;'>Kurs: {kurs}{whg}</span></div>", unsafe_allow_html=True)
 
-  # 3 Charts nebeneinander
-  cols = st.columns(3)
+  # 4 Charts nebeneinander
+  cols = st.columns(4)
   for col, (label, span) in zip(cols, time_spans):
     with col:
       st.caption(label)
