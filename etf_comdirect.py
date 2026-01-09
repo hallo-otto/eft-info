@@ -66,8 +66,8 @@ def load_chart(isin, time_span, html):
     f"&ID_NOTATION={id_notation}"
     f"&TIME_SPAN={time_span}"
     f"&TYPE=MOUNTAIN"
-    f"&WIDTH=600"
-    f"&HEIGHT=300"
+    f"&WIDTH=800"
+    f"&HEIGHT=400"
   )
 
   r = requests.get(url, headers=HEADERS)
@@ -165,7 +165,7 @@ for isin in isins:
   #print(info["kurs"])
 
   svg = sparkline(info["date"], info["kurs"], kurs)
-  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 18px;'>Kurs: {kurs}{svg}Diff: {diff} ({prz})  &nbsp;&nbsp;&nbsp; Info: {text}</span></div>", unsafe_allow_html=True)
+  st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 17px;'>Kurs: {kurs}{svg}Diff: {diff} ({prz})  &nbsp;&nbsp;&nbsp; Info: {text}</span></div>", unsafe_allow_html=True)
 
   # 3 Charts nebeneinander
   cols = st.columns(3)
