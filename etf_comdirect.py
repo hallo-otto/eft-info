@@ -4,28 +4,50 @@
 #https://www.comdirect.de/inf/fonds/LI1381606980?CIF_Check=true
 #https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart?DENSITY=2&ID_NOTATION=486784471&TIME_SPAN=10D&TYPE=MOUNTAIN&WIDTH=800&HEIGHT=400
 #https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart?DENSITY=2&ID_NOTATION=486784471&TIME_SPAN=3M&TYPE=MOUNTAIN&WIDTH=800&HEIGHT=400
+
 import base64
+from urllib.parse import parse_qs, urlparse
 
 import streamlit as st
 import requests
 import pandas as pd
 import io
+import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
+import html
 
 from fontTools.unicodedata import block
 from matplotlib import pyplot as plt
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
-# --- Mapping ISIN → {Name, ID_NOTATION} ---
-fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",  "id": "486784471", "ST":40, "CHF": 5509.37 , "EUR": 5940.91 , "date":["03.11.25", "07.01.26"], "kurs":[132.91, 142.55]},
-                 "LI1439616825": {"name": "PI Physical Silver Fund","id": "486784472", "ST":46, "CHF": 7654.12 , "EUR": 8252.73 , "date":["03.11.25", "07.01.26"], "kurs":[128.43, 195.59]},
+# --- Mapping ISIN → {Name, ID_NOTATION} --- 506766981
+fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",   "ST":40, "CHF": 5509.37 , "EUR": 5940.91 , "date":["03.11.25", "07.01.26"], "kurs":[132.91, 142.55]},
+                 "LI1439616825": {"name": "PI Physical Silver Fund", "ST":46, "CHF": 7654.12 , "EUR": 8252.73 , "date":["03.11.25", "07.01.26"], "kurs":[128.43, 195.59]},
 }
 
+# --- HTML einmal laden pro ISIN ---
+def load_fonds_page(isin: str) -> str:
+    url = f"https://www.comdirect.de/inf/fonds/{isin}"
+    res = requests.get(url, headers=HEADERS)
+    res.raise_for_status()
+    return res.text
+
+# Ermitteln der id_notation
+# id_notation ist nicht konstant, wird aus der Html Seite ermittelt
+def get_id_notation(html: str) -> str:
+  # ID_NOTATION per Regex suchen
+  match = re.search(r"ID_NOTATION=(\d+)", html)
+  if match:
+    #print(match.group(1))
+    return match.group(1)
+  else:
+    raise ValueError("ID_NOTATION nicht gefunden")
+
 # --- Funktion: Chart laden ---
-def load_chart(isin, time_span):
+def load_chart(isin, time_span, html):
   """
   Lädt das Chart-Bild für eine ISIN und Zeitraum.
   time_span: "10D", "3M", "6M" etc.
@@ -34,7 +56,8 @@ def load_chart(isin, time_span):
   if not info:
     raise ValueError(f"ISIN {isin} nicht im Mapping gefunden")
 
-  id_notation = info["id"]
+  id_notation=get_id_notation(html)
+  #print(id_notation)
 
   # charts
   url = (
@@ -43,8 +66,8 @@ def load_chart(isin, time_span):
     f"&ID_NOTATION={id_notation}"
     f"&TIME_SPAN={time_span}"
     f"&TYPE=MOUNTAIN"
-    f"&WIDTH=800"
-    f"&HEIGHT=400"
+    f"&WIDTH=500"
+    f"&HEIGHT=200"
   )
 
   r = requests.get(url, headers=HEADERS)
@@ -53,12 +76,9 @@ def load_chart(isin, time_span):
   return Image.open(BytesIO(r.content))
 
 # --- Funktion: Chart laden ---
-def load_kurs(isin):
+def load_kurs(html):
   # kurs
-  url = f"https://www.comdirect.de/inf/fonds/{isin}"
-  r = requests.get(url, headers=HEADERS)
-  r.raise_for_status()
-  soup = BeautifulSoup(r.text, "html.parser")
+  soup = BeautifulSoup(html, "html.parser")
 
   # Aktueller Kurs
   kurs_span = soup.find("span", class_="text-size--xxlarge text-weight--medium")
@@ -127,7 +147,6 @@ def sparkline(xdates, kurs, aktueller_kurs, width=80, height=20, line_color="#1f
 
   return svg_inline
 
-
 # --- Streamlit-App ---
 st.set_page_config(layout="wide")
 st.title("Fonds-Vergleich")
@@ -139,7 +158,10 @@ for isin in isins:
   info = fonds_mapping[isin]
   text = f"{info["date"][0]}({info["kurs"][0]})"
   text += f" {info["date"][1]}({info["kurs"][1]})"
-  kurs,diff,prz = load_kurs(isin)
+  # html Seite nur einmal laden
+  html = load_fonds_page(isin)
+
+  kurs,diff,prz = load_kurs(html)
   #print(info["kurs"])
 
   svg = sparkline(info["date"], info["kurs"], kurs)
@@ -150,7 +172,7 @@ for isin in isins:
   for col, (label, span) in zip(cols, time_spans):
     with col:
       st.caption(label)
-      img = load_chart(isin, span)
+      img = load_chart(isin, span, html)
       st.image(img, use_container_width=True)
 
   st.divider()
