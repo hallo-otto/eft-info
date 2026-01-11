@@ -29,6 +29,11 @@ fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",   "ST":40, "C
                  "LU2611732046": {"name": "Amundi Core DAX - UCITS ETF"},
                  "IE00BM67HT60": {"name": "Xtrackers MSCI World"},
                  "IE00B43HR379": {"name": "iShares S&P 500 Health"},
+                 "AT0000A347S9": {"name": "FIXED INCOME ONE R (Beck)"},
+                 "IE0001UQQ933": {"name": "L&G Gerd Kommer Multifactor Equity UCITS"},
+                 "IE000FPWSL69": {"name": "L&G Gerd Kommer"},
+                 "DE0005933931": {"name": "ISHARES CORE DAX UCITS ETF DE D"},
+                 "LU0055631609": {"name": "BGF-WORLD GOLD A2DL C"},
                  "LU0323578657": {"name": "Flossbach von Storch"},
 }
 
