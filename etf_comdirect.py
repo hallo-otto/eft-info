@@ -30,6 +30,12 @@ HEADERS = {
 # ---------- Fonds / Aktien Mapping ----------
 fonds_mapping = {}
 
+# Funktion für deutsche Zahlendarstellung
+def format_de(x, decimals=2):
+    if pd.isna(x):
+        return ""
+    return f"{x:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 # ---------- Daten aus Google Sheet laden ----------
 def to_float(value):
   if value is None:
@@ -203,21 +209,23 @@ def main():
 
           svg = sparkline(info["date"], info["kurs"], kurs) if kurs else ""
           text = " | ".join([
-            f"{d} ({k:.2f})" for d, k in zip(info["date"], info["kurs"])
+            f"{d} ({format_de(k,2)})" for d, k in zip(info["date"], info["kurs"])
           ])
 
           st.markdown(
-            f"## {info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<span style='font-size:20px;color:#555'>"
-            f"Diff: <span style='color:{color}; font-weight:bold'>{diff:.2f}</span>{whg} "
-            f"({prz:.2f}%) | Kurse: {text}</span>{svg}",
+            f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
+            f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
+            f"<span style='font-size:17px;color:#555'>"
+            f"Diff: <span style='color:{color}; font-weight:bold'>{format_de(diff,2)}</span>{whg} "
+            f"({format_de(prz,2)}%) | Kurse: {text}</span>{svg}</div>",
             unsafe_allow_html=True)
 
         else:
           st.markdown(
-            f"## {info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<span style='font-size:20px;color:#555'>"
-            f"Kurs {whg}: <span style='font-weight:bold'>{kurs:,.2f}</span>",
+            f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
+            f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
+            f"<span style='font-size:17px;color:#555'>"
+            f"Kurs {whg}: <span style='font-weight:bold'>{format_de(kurs,2)}</span></div>",
             unsafe_allow_html = True)
 
         # Charts
@@ -233,14 +241,16 @@ def main():
         st.divider()
 
         # Liste speichern, Diff/Prz für Tabelle farbig
+        # Nie f"{wert:.2f}" beim Befüllen des DataFrames für Zahlen verwenden.
+        # Stattdessen .format() oder .applymap() im Styler verwenden.
         liste.append([isin,
-                      info['name'], f"{diff:.0f}", f"{prz:.2f}",
-                      info["date"][0] if len(info["date"])>0 else None,
-                      f"{info["kurs"][0]:.2f}" if len(info["kurs"]) > 0 else None,
-                      info["date"][1] if len(info["date"])>1 else None,
-                      f"{info["kurs"][1]:.2f}" if len(info["kurs"]) >1 else None,
-                      info["date"][2] if len(info["date"])>2 else None,
-                      f"{info["kurs"][2]:.2f}" if len(info["kurs"])>2 else None
+                      info['name'], diff, prz,
+                      info["date"][0] if len(info["date"]) >0 else None,
+                      info["kurs"][0] if len(info["kurs"]) >0 else None,
+                      info["date"][1] if len(info["date"]) >1 else None,
+                      info["kurs"][1] if len(info["kurs"]) >1 else None,
+                      info["date"][2] if len(info["date"]) >2 else None,
+                      info["kurs"][2] if len(info["kurs"]) >2 else None
                      ])
     return liste
 
@@ -249,6 +259,8 @@ def liste_table(liste):
     if not liste: return
     df = pd.DataFrame(liste, columns=["ISIN","Name","Gewinn","Prozent","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
 
+
+
     # Farbe für Gewinn / Verlust in Tabelle
     def color_diff(val):
         v = to_float(val)
@@ -256,8 +268,37 @@ def liste_table(liste):
         return f'color: {color}; font-weight:bold'
 
     st.markdown("## Übersichtstabelle")
-    st.dataframe(df.style.applymap(color_diff, subset=["Gewinn"]))
+    # Streamlit DataFrame mit Styling und Formatierung
+    #st.dataframe(df_sorted.style
+    #             .format({"Gewinn": "{:,.0f}"})
+    #             .format({"Prozent": "{:,.2f}"})
+    #             .format({"Kurs1": "{:,.2f}"})
+    #             .format({"Kurs2": "{:,.2f}"})
+    #             .format({"Kurs3": "{:,.2f}"})
+    #             .applymap(color_diff, subset=["Gewinn"]))
 
+    # Ensure numeric type (important!), funktioniert nicht
+    df["Gewinn"] = pd.to_numeric(df["Gewinn"], errors="coerce")
+
+    df_sorted = df.sort_values(
+      by="Gewinn",
+      ascending=False,
+      na_position="last"  # <-- das sorgt dafür, dass None/NaN am Ende stehen
+    )
+
+    # Style einmal mit dict für alle Spalten
+    # Streamlit anzeigen mit deutschem Zahlenformat
+    st.dataframe(
+      df_sorted.style
+      .format({
+        "Gewinn":  lambda x: format_de(x, 0),  # keine Dezimalstellen
+        "Prozent": lambda x: format_de(x, 2),  # 2 Dezimalstellen
+        "Kurs1":   lambda x: format_de(x, 2),
+        "Kurs2":   lambda x: format_de(x, 2),
+        "Kurs3":   lambda x: format_de(x, 2)
+      })
+      .applymap(color_diff, subset=["Gewinn"])
+    )
 # ---------- App starten ----------
 if __name__ == "__main__":
     l = main()
