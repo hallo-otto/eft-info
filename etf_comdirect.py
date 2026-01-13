@@ -165,7 +165,7 @@ def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1
     dates = [pd.to_datetime(d, format="%d.%m.%Y") for d in dates]
 
     # Farbe
-    if values[0] < values[-1]: line_color = "green"
+    if values[0]   < values[-1]: line_color = "green"
     elif values[0] > values[-1]: line_color = "red"
 
     # Grafik
@@ -213,18 +213,18 @@ def main():
           ])
 
           st.markdown(
-            f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
+            f"## <div style='display: inline-block;white-space: nowrap;font-size: 21px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<span style='font-size:17px;color:#555'>"
+            f"<span style='font-size:16px;color:#555'>"
             f"Diff: <span style='color:{color}; font-weight:bold'>{format_de(diff,2)}</span>{whg} "
-            f"({format_de(prz,2)}%) | Kurse: {text}</span>{svg}</div>",
+            f"({format_de(prz,2)}%) Kurse: {text}</span>{svg}</div>",
             unsafe_allow_html=True)
 
         else:
           st.markdown(
-            f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
+            f"## <div style='display: inline-block;white-space: nowrap;font-size: 21px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<span style='font-size:17px;color:#555'>"
+            f"<span style='font-size:16px;color:#555'>"
             f"Kurs {whg}: <span style='font-weight:bold'>{format_de(kurs,2)}</span></div>",
             unsafe_allow_html = True)
 
