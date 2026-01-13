@@ -1,9 +1,3 @@
-# pip install playwright pandas matplotlib
-# playwright install
-#pip install requests beautifulsoup4 pillow streamlit
-#https://www.comdirect.de/inf/fonds/LI1381606980?CIF_Check=true
-#https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart?DENSITY=2&ID_NOTATION=486784471&TIME_SPAN=10D&TYPE=MOUNTAIN&WIDTH=800&HEIGHT=400
-#https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart?DENSITY=2&ID_NOTATION=486784471&TIME_SPAN=3M&TYPE=MOUNTAIN&WIDTH=800&HEIGHT=400
 import base64
 import io
 from datetime import datetime
@@ -153,11 +147,24 @@ def load_kurs(html, info):
         # Berechnen diff, prz
         if aktueller_kurs is not None:
             diff = stueck * aktueller_kurs - kaufwert
-            prz = (100 * diff / kaufwert) if kaufwert != 0 else 0
+            prz  = (100 * diff / kaufwert) if kaufwert != 0 else 0
+            # Leere Zellen / fehlende Werte → NaN
+            # NaN ist ein float
+            # datetime.strptime() erwartet str
+            raw  = info["date"][0]
+            if isinstance(raw, str):
+              ziel = datetime.strptime(raw, "%d.%m.%Y")
+              days = (datetime.today() - ziel).days
+              diffJahr = diff * 365 / days
+              przJahr  = prz * 365 / days
+            else:
+              diffJahr = None
+              przJahr  = None
+
             info["kurs"].append(aktueller_kurs)
             info["date"].append(datetime.today().strftime("%d.%m.%Y"))
     whg = whg_span.get_text(strip=True) if whg_span else ""
-    return aktueller_kurs, whg, diff, prz
+    return aktueller_kurs, whg, diff, diffJahr, prz, przJahr
 
 # ---------- Sparkline ----------
 def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1f77b4", mark_last=True):
@@ -201,7 +208,7 @@ def main():
             st.markdown(f"<span style='color:red'>Fehler beim Laden: {isin}</span>", unsafe_allow_html=True)
             continue
 
-        kurs, whg, diff, prz = load_kurs(html, info)
+        kurs, whg, diff, diffJahr, prz, przJahr = load_kurs(html, info)
 
         if isinstance(info["stueck"], float) and isinstance(info["kaufwert"], float) and isinstance(info["date"][0], str):
           # Farbe für Gewinn
@@ -244,7 +251,7 @@ def main():
         # Nie f"{wert:.2f}" beim Befüllen des DataFrames für Zahlen verwenden.
         # Stattdessen .format() oder .applymap() im Styler verwenden.
         liste.append([isin,
-                      info['name'], diff, prz,
+                      info['name'], diff, diffJahr, prz, przJahr,
                       info["date"][0] if len(info["date"]) >0 else None,
                       info["kurs"][0] if len(info["kurs"]) >0 else None,
                       info["date"][1] if len(info["date"]) >1 else None,
@@ -257,7 +264,7 @@ def main():
 # ---------- Tabelle ----------
 def liste_table(liste):
     if not liste: return
-    df = pd.DataFrame(liste, columns=["ISIN","Name","Gewinn","Prozent","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
+    df = pd.DataFrame(liste, columns=["ISIN","Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
 
 
 
@@ -268,14 +275,6 @@ def liste_table(liste):
         return f'color: {color}; font-weight:bold'
 
     st.markdown("## Übersichtstabelle")
-    # Streamlit DataFrame mit Styling und Formatierung
-    #st.dataframe(df_sorted.style
-    #             .format({"Gewinn": "{:,.0f}"})
-    #             .format({"Prozent": "{:,.2f}"})
-    #             .format({"Kurs1": "{:,.2f}"})
-    #             .format({"Kurs2": "{:,.2f}"})
-    #             .format({"Kurs3": "{:,.2f}"})
-    #             .applymap(color_diff, subset=["Gewinn"]))
 
     # Ensure numeric type (important!), funktioniert nicht
     df["Gewinn"] = pd.to_numeric(df["Gewinn"], errors="coerce")
@@ -291,8 +290,10 @@ def liste_table(liste):
     st.dataframe(
       df_sorted.style
       .format({
-        "Gewinn":  lambda x: format_de(x, 0),  # keine Dezimalstellen
-        "Prozent": lambda x: format_de(x, 2),  # 2 Dezimalstellen
+        "Gewinn":  lambda x: format_de(x, 0),          # keine Dezimalstellen
+        "Gewinn je Jahr": lambda x: format_de(x, 0),   # 2 Dezimalstellen
+        "Prozent": lambda x: format_de(x, 2),          # 2 Dezimalstellen
+        "Prozent je Jahr": lambda x: format_de(x, 2),  # 2 Dezimalstellen
         "Kurs1":   lambda x: format_de(x, 2),
         "Kurs2":   lambda x: format_de(x, 2),
         "Kurs3":   lambda x: format_de(x, 2)
