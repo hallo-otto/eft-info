@@ -4,195 +4,261 @@
 #https://www.comdirect.de/inf/fonds/LI1381606980?CIF_Check=true
 #https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart?DENSITY=2&ID_NOTATION=486784471&TIME_SPAN=10D&TYPE=MOUNTAIN&WIDTH=800&HEIGHT=400
 #https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart?DENSITY=2&ID_NOTATION=486784471&TIME_SPAN=3M&TYPE=MOUNTAIN&WIDTH=800&HEIGHT=400
-
 import base64
-from urllib.parse import parse_qs, urlparse
-
-import streamlit as st
-import requests
-import pandas as pd
 import io
-import re
 from datetime import datetime
+
+import pandas as pd
+import requests
+import streamlit as st
 from bs4 import BeautifulSoup
 from PIL import Image
-from io import BytesIO
-import html
-
-from fontTools.unicodedata import block
 from matplotlib import pyplot as plt
 
-HEADERS = {"User-Agent": "Mozilla/5.0"}
-# --- Mapping ISIN → {Name, ID_NOTATION} --- 506766981
-fonds_mapping = {"LI1381606980": {"name": "PI Physical Gold Fund",   "ST":40, "CHF": 5509.37 , "EUR": 5940.91 , "date":["03.11.25", "07.01.26"], "kurs":[132.91, 142.55]},
-                 "LI1439616825": {"name": "PI Physical Silver Fund", "ST":46, "CHF": 7654.12 , "EUR": 8252.73 , "date":["03.11.25", "07.01.26"], "kurs":[128.43, 195.59]},
-                 "LU2611732046": {"name": "Amundi Core DAX - UCITS ETF"},
-                 "IE00BM67HT60": {"name": "Xtrackers MSCI World"},
-                 "IE00B43HR379": {"name": "iShares S&P 500 Health"},
-                 "AT0000A347S9": {"name": "FIXED INCOME ONE R (Beck)"},
-                 "IE0001UQQ933": {"name": "L&G Gerd Kommer Multifactor Equity UCITS"},
-                 "IE000FPWSL69": {"name": "L&G Gerd Kommer"},
-                 "DE0005933931": {"name": "ISHARES CORE DAX UCITS ETF DE D"},
-                 "LU0055631609": {"name": "BGF-WORLD GOLD A2DL C"},
-                 "LU0323578657": {"name": "Flossbach von Storch"},
+# ---------- HEADERS ----------
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept-Language": "de-DE,de;q=0.9",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+    "Referer": "https://www.comdirect.de/"
 }
 
-# --- HTML einmal laden pro ISIN ---
-def load_fonds_page(isin: str) -> str:
-    url = f"https://www.comdirect.de/inf/fonds/{isin}"
-    res = requests.get(url, headers=HEADERS)
-    res.raise_for_status()
-    return res.text
+# ---------- Fonds / Aktien Mapping ----------
+fonds_mapping = {}
 
-# Ermitteln der id_notation
-# id_notation ist nicht konstant, wird aus der Html Seite ermittelt
-def get_id_notation(html: str) -> str:
-  # ID_NOTATION per Regex suchen
-  match = re.search(r"ID_NOTATION=(\d+)", html)
-  if match:
-    #print(match.group(1))
-    return match.group(1)
-  else:
-    raise ValueError("ID_NOTATION nicht gefunden")
+# ---------- Daten aus Google Sheet laden ----------
+def to_float(value):
+  if value is None:
+     return 0.0
+  return float(str(value).replace(".", "").replace(",", "."))
 
-# --- Funktion: Chart laden ---
+def load_fonds_mapping():
+    SHEET_ID = "2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk"
+    url = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=0&single=true&output=csv"
+    url_nocache = f"{url}&t={int(datetime.today().timestamp())}"
+    # https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pub?gid=0&single=true&output=csv
+
+    #print("Lade Google Sheet von:")
+    #print(url_nocache)
+
+    df = pd.read_csv(url_nocache)
+
+    #print("\n--- Rohdaten aus Google Sheet ---")
+    #print(df)
+    mapping = {}
+    for _, row in df.iterrows():
+      kz = row["KZ"]
+      if kz != "ok": continue
+      isin = str(row["ISIN"]).strip()
+      try:
+         mapping[isin] = {
+          "name": row["Name"],
+          "stueck": to_float(row.get("Stueck", None)),
+          "kaufwert": to_float(row.get("Kaufwert")),
+          "date": [row.get("Datum1", ""), row.get("Datum2", "")],
+          "kurs": [to_float(row.get("Kurs1")), to_float(row.get("Kurs2"))],
+          "EUR":  to_float(row.get("EUR"))
+         }
+      except (TypeError, ValueError):
+         print("Error", row, TypeError, ValueError)
+
+    return mapping
+
+# ---------- Prüfen ob Fonds oder Aktie und html laden Html----------
+def get_product_type(isin):
+    url_fonds = f"https://www.comdirect.de/inf/fonds/{isin}"
+    try:
+        r = requests.get(url_fonds, headers=HEADERS, timeout=10)
+        if r.status_code == 200:
+            return "fonds", url_fonds
+        url_aktie = f"https://www.comdirect.de/inf/aktien/{isin}"
+        r2 = requests.get(url_aktie, headers=HEADERS, timeout=10)
+        if r2.status_code == 200:
+            return "aktie", url_aktie
+    except requests.RequestException:
+        pass
+    return None, None
+
+# ---------- HTML laden ----------
+def load_page(url):
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        r.raise_for_status()
+        return r.text
+    except:
+        return None
+
+# ---------- ID_NOTATION extrahieren ----------
+def get_id_notation(html: str):
+    import re
+    match = re.search(r"ID_NOTATION=(\d+)", html)
+    if match:
+        return match.group(1)
+    return None
+
+# ---------- Chart laden ----------
 def load_chart(isin, time_span, html):
-  """
-  Lädt das Chart-Bild für eine ISIN und Zeitraum.
-  time_span: "10D", "3M", "6M" etc.
-  """
-  info = fonds_mapping.get(isin)
-  if not info:
-    raise ValueError(f"ISIN {isin} nicht im Mapping gefunden")
+    id_notation = get_id_notation(html)
+    if not id_notation:
+        return None
+    url = (
+        f"https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart"
+        f"?DENSITY=2"
+        f"&ID_NOTATION={id_notation}"
+        f"&TIME_SPAN={time_span}"
+        f"&TYPE=MOUNTAIN"
+        f"&WIDTH=800"
+        f"&HEIGHT=400"
+    )
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        r.raise_for_status()
+        return Image.open(io.BytesIO(r.content))
+    except:
+        return None
 
-  id_notation=get_id_notation(html)
-  #print(id_notation)
+# ---------- Kurs extrahieren ----------
+def load_kurs(html, info):
+    soup = BeautifulSoup(html, "html.parser")
 
-  # charts
-  url = (
-    f"https://charts.comdirect.de/charts/rebrush/design_small.ewf.chart"
-    f"?DENSITY=2"
-    f"&ID_NOTATION={id_notation}"
-    f"&TIME_SPAN={time_span}"
-    f"&TYPE=MOUNTAIN"
-    f"&WIDTH=800"
-    f"&HEIGHT=400"
-  )
+    # Fonds / Standard
+    kurs_span = soup.find("span", class_="text-size--xxlarge text-weight--medium")
+    if not kurs_span:
+        kurs_span = soup.find("span", class_="realtime-indicator--value")
+    if not kurs_span:
+        # Alternative für Aktien (z.B. BMW)
+        kurs_span = soup.find("fin-streamer", {"data-field":"regularMarketPrice"})
 
-  r = requests.get(url, headers=HEADERS)
-  r.raise_for_status()
+    whg_span = soup.find("span", class_="text-size--medium outer-spacing--small-top")
 
-  return Image.open(BytesIO(r.content))
+    aktueller_kurs = None
+    stueck, kaufwert, diff, prz, whg = 0, 0, 0, 0, ""
+    if kurs_span:
+        try:
+            aktueller_kurs = float(kurs_span.get_text(strip=True).replace(",", "."))
+        except:
+            aktueller_kurs = None
+        if "stueck"   in info: stueck = info["stueck"]
+        if "kaufwert" in info: kaufwert = info["kaufwert"]
+        # Berechnen diff, prz
+        if aktueller_kurs is not None:
+            diff = stueck * aktueller_kurs - kaufwert
+            prz = (100 * diff / kaufwert) if kaufwert != 0 else 0
+            info["kurs"].append(aktueller_kurs)
+            info["date"].append(datetime.today().strftime("%d.%m.%Y"))
+    whg = whg_span.get_text(strip=True) if whg_span else ""
+    return aktueller_kurs, whg, diff, prz
 
-# --- Funktion: Chart laden ---
-def load_kurs(html,info):
-  # kurs
-  soup = BeautifulSoup(html, "html.parser")
+# ---------- Sparkline ----------
+def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1f77b4", mark_last=True):
+    # Datum konvertieren
+    dates = [pd.to_datetime(d, format="%d.%m.%Y") for d in dates]
 
-  # Aktueller Kurs                            text-size--xxlarge text-weight--medium
-  kurs_span = soup.find("span", class_="text-size--xxlarge text-weight--medium")
-  whg_span = soup.find("span", class_="text-size--medium outer-spacing--small-top")
-  #print(isin)
-  #print(kurs_span)
-  aktueller_kurs = None
-  st,chf,diff,prz,whg = 0,0,0,0,""
-  if kurs_span:
-    aktueller_kurs = kurs_span.get_text(strip=True)
+    # Farbe
+    if values[0] < values[-1]: line_color = "green"
+    elif values[0] > values[-1]: line_color = "red"
 
-    if "ST"  in info : st  = info["ST"]
-    if "CHF" in info : chf = info["CHF"]
-    diff = st * float(aktueller_kurs) - chf
-    if chf!=0: prz  = (100 * diff / chf)
-    #print("Aktueller Kurs:", aktueller_kurs)
-  else:
-    print("Kurs nicht gefunden")
-  if whg_span:
-    whg = whg_span.get_text(strip=True)
-  else:
-    whg = ""
+    # Grafik
+    fig, ax = plt.subplots(figsize=(width/80, height/80))
+    ax.plot(dates, values, linewidth=1.1, color=line_color)
 
-  return aktueller_kurs, whg, f"{diff:,.0f}CHF", f"{prz:,.2f}%"
+    if mark_last:
+        ax.scatter(dates[-1], values[-1], s=10, color=line_color, zorder=5)
+    ax.axis('off')
+    plt.tight_layout(pad=0)
+    buf = io.BytesIO()
+    fig.savefig(buf, format="svg", bbox_inches='tight')
+    plt.close(fig)
 
-# Sparline
-def sparkline(xdates, kurs, aktueller_kurs, width=80, height=20, line_color="#1f77b4", mark_last=True):
-  """
-  Erzeugt eine Mini-Sparkline als SVG Base64 für Streamlit.
+    svg_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    return f'<object data="data:image/svg+xml;base64,{svg_base64}" type="image/svg+xml" style="width:{width}px; height:{height}px"></object>'
 
-  - xdates: Liste von Datumsstrings im Format 'dd.mm.yy'
-  - kurs: Liste von Kurswerten
-  - aktueller_kurs: letzter Kurswert
-  - width, height: Größe der Mini-Sparkline in Pixel
-  - line_color: Farbe der Linie
-  - mark_last: ob der letzte Punkt markiert werden soll
-  """
-  # Konvertiere Datum
-  dates = [pd.to_datetime(d, format="%d.%m.%y") for d in xdates]
-  dates.append(datetime.today())
+# ---------- Main App ----------
+def main():
+    fonds_mapping = load_fonds_mapping()
+    st.set_page_config(layout="wide")
+    st.title("Fonds / Aktien Übersicht")
+    liste = []
 
-  # Werte kopieren, um Original-Liste nicht zu ändern
-  values = kurs.copy()
-  values.append(float(aktueller_kurs))
+    for isin, info in fonds_mapping.items():
+        typ, url = get_product_type(isin)
+        if not typ:
+            st.markdown(f"<span style='color:red'>ISIN {isin} nicht gefunden</span>", unsafe_allow_html=True)
+            continue
 
-  # Trendfarbe bestimmen
-  if values[-1] > values[-2]:
-        color = "green"
-  elif values[-1] < values[-2]:
-        color = "red"
-  else:
-        color = "#1f77b4"  # neutral/Blau
+        html = load_page(url)
+        if not html:
+            st.markdown(f"<span style='color:red'>Fehler beim Laden: {isin}</span>", unsafe_allow_html=True)
+            continue
 
-  # Mini-Chart erzeugen
-  fig, ax = plt.subplots(figsize=(width / 80, height / 80))
-  ax.plot(dates, values, linewidth=1.1, color=line_color)
+        kurs, whg, diff, prz = load_kurs(html, info)
 
-  # Optional letzten Punkt markieren
-  if mark_last:
-    ax.scatter(dates[-1], values[-1], s=10, color=line_color, zorder=5)
+        if isinstance(info["stueck"], float) and isinstance(info["kaufwert"], float) and isinstance(info["date"][0], str):
+          # Farbe für Gewinn
+          color = "green" if diff >= 0 else "red"
 
-  ax.axis('off')
-  plt.tight_layout(pad=0)
+          svg = sparkline(info["date"], info["kurs"], kurs) if kurs else ""
+          text = " | ".join([
+            f"{d} ({k:.2f})" for d, k in zip(info["date"], info["kurs"])
+          ])
 
-  # SVG in Base64 kodieren
-  buf = io.BytesIO()
-  fig.savefig(buf, format="svg", bbox_inches='tight')
-  plt.close(fig)
-  svg_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+          st.markdown(
+            f"## {info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
+            f"<span style='font-size:20px;color:#555'>"
+            f"Diff: <span style='color:{color}; font-weight:bold'>{diff:.2f}</span>{whg} "
+            f"({prz:.2f}%) | Kurse: {text}</span>{svg}",
+            unsafe_allow_html=True)
 
-  # Inline HTML für Streamlit
-  svg_inline = f'<object data="data:image/svg+xml;base64,{svg_base64}" type="image/svg+xml" ' \
-               f'style="display:inline-block; vertical-align:middle; width:{width}px; height:{height}px; margin:0; padding:0"></object>'
+        else:
+          st.markdown(
+            f"## {info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
+            f"<span style='font-size:20px;color:#555'>"
+            f"Kurs {whg}: <span style='font-weight:bold'>{kurs:,.2f}</span>",
+            unsafe_allow_html = True)
 
-  return svg_inline
+        # Charts
+        time_spans = [("10 Tage","10D"),("3 Monate","3M"),("6 Monate","6M"),("1 Jahr","1Y")]
+        cols = st.columns(4)
+        for col, (label, span) in zip(cols, time_spans):
+            with col:
+                st.caption(label)
+                img = load_chart(isin, span, html)
+                if img:
+                    st.image(img, use_container_width=True)
 
-# --- Streamlit-App ---
-st.set_page_config(layout="wide")
-st.title("Fonds-Übersicht")
+        st.divider()
 
-isins = list(fonds_mapping.keys())
-time_spans = [("10 Tage", "10D"), ("3 Monate", "3M"), ("6 Monate", "6M"), ("1 Jahr", "1Y")]
+        # Liste speichern, Diff/Prz für Tabelle farbig
+        liste.append([isin,
+                      info['name'], f"{diff:.0f}", f"{prz:.2f}",
+                      info["date"][0] if len(info["date"])>0 else None,
+                      f"{info["kurs"][0]:.2f}" if len(info["kurs"]) > 0 else None,
+                      info["date"][1] if len(info["date"])>1 else None,
+                      f"{info["kurs"][1]:.2f}" if len(info["kurs"]) >1 else None,
+                      info["date"][2] if len(info["date"])>2 else None,
+                      f"{info["kurs"][2]:.2f}" if len(info["kurs"])>2 else None
+                     ])
+    return liste
 
-for isin in isins:
-  info = fonds_mapping[isin]
-  # html Seite nur einmal laden
-  html = load_fonds_page(isin)
+# ---------- Tabelle ----------
+def liste_table(liste):
+    if not liste: return
+    df = pd.DataFrame(liste, columns=["ISIN","Name","Gewinn","Prozent","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
 
-  kurs, whg, diff, prz = load_kurs(html,info)
-  #print(info["kurs"])
+    # Farbe für Gewinn / Verlust in Tabelle
+    def color_diff(val):
+        v = to_float(val)
+        color = 'green' if v > 0 else ('red' if v < 0 else '')
+        return f'color: {color}; font-weight:bold'
 
-  if "date" in info:
-    text  = f"{info["date"][0]} ({info["kurs"][0]})"
-    text += f"&nbsp;&nbsp; {info["date"][1]} ({info["kurs"][1]})"
-    svg   = sparkline(info["date"], info["kurs"], kurs)
-    st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 17px;'>Kurs: {kurs}{whg}{svg}Diff: {diff} ({prz})  &nbsp;&nbsp;&nbsp; Info: {text}</span></div>", unsafe_allow_html=True)
-  else:
-    st.markdown(f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>{info['name']} (<a target='_blank' href='https://www.comdirect.de/inf/fonds/{isin}'>{isin}</a>) <span style='margin-left:10px;color: #888; font-size: 17px;'>Kurs: {kurs}{whg}</span></div>", unsafe_allow_html=True)
+    st.markdown("## Übersichtstabelle")
+    st.dataframe(df.style.applymap(color_diff, subset=["Gewinn"]))
 
-  # 4 Charts nebeneinander
-  cols = st.columns(4)
-  for col, (label, span) in zip(cols, time_spans):
-    with col:
-      st.caption(label)
-      img = load_chart(isin, span, html)
-      st.image(img, use_container_width=True)
-
-  st.divider()
+# ---------- App starten ----------
+if __name__ == "__main__":
+    l = main()
+    liste_table(l)
