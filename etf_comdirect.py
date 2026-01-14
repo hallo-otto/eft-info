@@ -220,18 +220,18 @@ def main():
           ])
 
           st.markdown(
-            f"## <div style='display: inline-block;white-space: nowrap;font-size: 20px'>"
+            f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<span style='font-size:15px;color:#555'>"
-            f"Diff: <span style='color:{color}; font-weight:bold'>{format_de(diff,2)}</span>{whg} "
-            f"({format_de(prz,2)}%) Kurse: {text}</span>{svg}</div>",
+            f"<br><span style='font-size:18px;color:#555'>"
+            f"Diff: <span style='color:{color}; font-weight:bold'>{format_de(diff,2)}</span> {whg} "
+            f"({format_de(prz,2)}%) &nbsp; &nbsp; &nbsp; Kurse: {text}</span>{svg}</div>",
             unsafe_allow_html=True)
 
         else:
           st.markdown(
-            f"## <div style='display: inline-block;white-space: nowrap;font-size: 20px'>"
+            f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<span style='font-size:15px;color:#555'>"
+            f"<br><span style='font-size:18px;color:#555'>"
             f"Kurs {whg}: <span style='font-weight:bold'>{format_de(kurs,2)}</span></div>",
             unsafe_allow_html = True)
 
@@ -250,7 +250,7 @@ def main():
         # Liste speichern, Diff/Prz für Tabelle farbig
         # Nie f"{wert:.2f}" beim Befüllen des DataFrames für Zahlen verwenden.
         # Stattdessen .format() oder .applymap() im Styler verwenden.
-        liste.append([isin,
+        liste.append([isin, url,
                       info['name'], diff, diffJahr, prz, przJahr,
                       info["date"][0] if len(info["date"]) >0 else None,
                       info["kurs"][0] if len(info["kurs"]) >0 else None,
@@ -264,9 +264,7 @@ def main():
 # ---------- Tabelle ----------
 def liste_table(liste):
     if not liste: return
-    df = pd.DataFrame(liste, columns=["ISIN","Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
-
-
+    df = pd.DataFrame(liste, columns=["ISIN","URL", "Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
 
     # Farbe für Gewinn / Verlust in Tabelle
     def color_diff(val):
@@ -298,7 +296,14 @@ def liste_table(liste):
         "Kurs2":   lambda x: format_de(x, 2),
         "Kurs3":   lambda x: format_de(x, 2)
       })
-      .applymap(color_diff, subset=["Gewinn"])
+      .applymap(color_diff, subset=["Gewinn"]),
+      column_config = {
+         "ISIN": None,  # <-- Spalte komplett versteckt
+         "URL": st.column_config.LinkColumn(
+           label="ISIN",
+           display_text=df_sorted["ISIN"].iloc[0]
+         ),
+      },hide_index=True
     )
 # ---------- App starten ----------
 if __name__ == "__main__":
