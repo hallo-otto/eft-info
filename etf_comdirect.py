@@ -8,6 +8,7 @@ import streamlit as st
 from bs4 import BeautifulSoup
 from PIL import Image
 from matplotlib import pyplot as plt
+from numpy.ma.extras import row_stack
 
 # ---------- HEADERS ----------
 HEADERS = {
@@ -96,13 +97,19 @@ def load_page(url):
 def get_id_notation(html: str):
     import re
     match = re.search(r"ID_NOTATION=(\d+)", html)
-    if match:
-        return match.group(1)
-    return None
+    pattern = r'<td class="table__column--right" data-label="Datum">\s*(.*?)\s*</td>'
+    matches1 = re.findall(pattern, html, re.DOTALL)
+
+    id_notation = match.group(1) if match else None
+    stand       = matches1[0] if matches1 else None
+
+    print(matches1[0])
+    print(matches1)
+
+    return id_notation, stand
 
 # ---------- Chart laden ----------
-def load_chart(isin, time_span, html):
-    id_notation = get_id_notation(html)
+def load_chart(isin, time_span, id_notation):
     if not id_notation:
         return None
     url = (
@@ -198,6 +205,7 @@ def main():
     liste = []
 
     for isin, info in fonds_mapping.items():
+        print(isin)
         typ, url = get_product_type(isin)
         if not typ:
             st.markdown(f"<span style='color:red'>ISIN {isin} nicht gefunden</span>", unsafe_allow_html=True)
@@ -209,6 +217,7 @@ def main():
             continue
 
         kurs, whg, diff, diffJahr, prz, przJahr = load_kurs(html, info)
+        id_notation, stand = get_id_notation(html)
 
         if isinstance(info["stueck"], float) and isinstance(info["kaufwert"], float) and isinstance(info["date"][0], str):
           # Farbe für Gewinn
@@ -222,17 +231,17 @@ def main():
           st.markdown(
             f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<br><span style='font-size:18px;color:#555'>"
-            f"Diff: <span style='color:{color}; font-weight:bold'>{format_de(diff,2)}</span> {whg} "
-            f"({format_de(prz,2)}%) &nbsp; &nbsp; &nbsp; Kurse: {text}</span>{svg}</div>",
+            f"<br><span style='font-size:17px;color:#555;font-weight: normal;'>"
+            f"<b>Stand:</b>{stand} &nbsp; &nbsp; <b>Diff:</b> <span style='color:{color}'>{format_de(diff,2)}</span> {whg} "
+            f"({format_de(prz,2)}%) &nbsp; &nbsp; <b>Kurse:</b> {text}</span>{svg}</div>",
             unsafe_allow_html=True)
 
         else:
           st.markdown(
             f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<br><span style='font-size:18px;color:#555'>"
-            f"Kurs {whg}: <span style='font-weight:bold'>{format_de(kurs,2)}</span></div>",
+            f"<br><span style='font-size:17px;color:#555, font-weight: normal;'>"
+            f"Kurs {whg}: <b>Stand:</b>{stand} &nbsp; &nbsp; {format_de(kurs,2)}</span></div>",
             unsafe_allow_html = True)
 
         # Charts
@@ -241,7 +250,7 @@ def main():
         for col, (label, span) in zip(cols, time_spans):
             with col:
                 st.caption(label)
-                img = load_chart(isin, span, html)
+                img = load_chart(isin, span, id_notation)
                 if img:
                     st.image(img, use_container_width=True)
 
@@ -285,6 +294,9 @@ def liste_table(liste):
 
     # Style einmal mit dict für alle Spalten
     # Streamlit anzeigen mit deutschem Zahlenformat
+    #df_sorted["URL"] = df_sorted.apply(
+    #  lambda row: f"<a href=""{row['URL']}"" target='_blank'>{row['ISIN']}</a>", axis=1
+    #)
     st.dataframe(
       df_sorted.style
       .format({
@@ -298,11 +310,11 @@ def liste_table(liste):
       })
       .applymap(color_diff, subset=["Gewinn"]),
       column_config = {
-         "ISIN": None,  # <-- Spalte komplett versteckt
-         "URL": st.column_config.LinkColumn(
-           label="ISIN",
-           display_text=df_sorted["ISIN"].iloc[0]
-         ),
+         "URL": None,  # <-- Spalte komplett versteckt
+         #"URL": st.column_config.LinkColumn(
+         #  label="Seite"
+         #  #display_text=f"🔗 öffnen {row_stack}"
+         #),
       },hide_index=True
     )
 # ---------- App starten ----------
