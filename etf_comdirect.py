@@ -97,16 +97,30 @@ def load_page(url):
 def get_id_notation(html: str):
     import re
     match = re.search(r"ID_NOTATION=(\d+)", html)
+    id_notation = match.group(1) if match else None
+
+    # 1️⃣ Datum extrahieren
     pattern = r'<td class="table__column--right" data-label="Datum">\s*(.*?)\s*</td>'
     matches1 = re.findall(pattern, html, re.DOTALL)
 
-    id_notation = match.group(1) if match else None
-    stand       = matches1[0] if matches1 else None
+    # 2️⃣ data-label extrahieren
+    pattern = r'<td class="table__column--top hidden-lg hidden-md table__column-mobile-toggle" data-label="(.*?)">'
+    matches2 = re.findall(pattern, html, re.DOTALL)
 
-    print(matches1[0])
-    print(matches1)
+    # 3️⃣ Index von Gettex
+    # index_gettex = [...] or [0] → wenn „Gettex“ nicht gefunden wird, nehmen wir Index 0.
+    index_gettex = [i for i, m in enumerate(matches2) if m.lower() == "gettex"] or [0]
 
-    return id_notation, stand
+    # 4️⃣ Wert aus matches1 an diesem Index
+    index  = index_gettex[0]
+    stand  = matches1[index] if matches1 else None
+    boerse = matches2[index] if matches2 else None
+
+    #print(stand)
+    #print(matches1)
+    #print(matches2)
+
+    return id_notation, stand, boerse
 
 # ---------- Chart laden ----------
 def load_chart(isin, time_span, id_notation):
@@ -205,7 +219,7 @@ def main():
     liste = []
 
     for isin, info in fonds_mapping.items():
-        print(isin)
+        #print(isin)
         typ, url = get_product_type(isin)
         if not typ:
             st.markdown(f"<span style='color:red'>ISIN {isin} nicht gefunden</span>", unsafe_allow_html=True)
@@ -217,7 +231,7 @@ def main():
             continue
 
         kurs, whg, diff, diffJahr, prz, przJahr = load_kurs(html, info)
-        id_notation, stand = get_id_notation(html)
+        id_notation, stand, boerse  = get_id_notation(html)
 
         if isinstance(info["stueck"], float) and isinstance(info["kaufwert"], float) and isinstance(info["date"][0], str):
           # Farbe für Gewinn
@@ -232,7 +246,7 @@ def main():
             f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
             f"<br><span style='font-size:17px;color:#555;font-weight: normal;'>"
-            f"<b>Stand:</b>{stand} &nbsp; &nbsp; <b>Diff:</b> <span style='color:{color}'>{format_de(diff,2)}</span> {whg} "
+            f"<b>Stand:</b>{stand} ({boerse}) &nbsp; &nbsp; <b>Diff:</b> <span style='color:{color}'>{format_de(diff,2)}</span> {whg} "
             f"({format_de(prz,2)}%) &nbsp; &nbsp; <b>Kurse:</b> {text}</span>{svg}</div>",
             unsafe_allow_html=True)
 
@@ -240,8 +254,8 @@ def main():
           st.markdown(
             f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
             f"{info['name']} (<a href='{url}' target='_blank'>{isin}</a>) "
-            f"<br><span style='font-size:17px;color:#555, font-weight: normal;'>"
-            f"Kurs {whg}: <b>Stand:</b>{stand} &nbsp; &nbsp; {format_de(kurs,2)}</span></div>",
+            f"<br><span style='font-size:17px;color:#555;font-weight: normal;'>"
+            f"<b>Kurs:</b>{stand} ({boerse}) &nbsp; &nbsp; {format_de(kurs,2)} {whg}</span></div>",
             unsafe_allow_html = True)
 
         # Charts
