@@ -90,7 +90,8 @@ def load_page(url):
         r = requests.get(url, headers=HEADERS, timeout=10)
         r.raise_for_status()
         return r.text
-    except:
+    except Exception as e:
+        print(f"Fehler beim Abrufen von {url}: {e}")
         return None
 
 # ---------- ID_NOTATION extrahieren ----------
@@ -161,8 +162,10 @@ def load_kurs(html, info):
     if kurs_span:
         try:
             aktueller_kurs = float(kurs_span.get_text(strip=True).replace(",", "."))
-        except:
+        except Exception as e:
+            print(f"Fehler beim Kurs von {kurs_span}: {e}")
             aktueller_kurs = None
+
         if "stueck"   in info: stueck = info["stueck"]
         if "kaufwert" in info: kaufwert = info["kaufwert"]
         # Berechnen diff, prz
@@ -210,9 +213,21 @@ def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1
 
     svg_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
     return f'<object data="data:image/svg+xml;base64,{svg_base64}" type="image/svg+xml" style="width:{width}px; height:{height}px"></object>'
+# ---------- Kurse App ----------
+def kurse():
+  st.title("Kurse Edelmetalle")
+  url = "https://www.gold.de/kurse/"
+  html = load_page(url)
+  soup = BeautifulSoup(html, "html.parser")
+  section = soup.find("section", class_="sonstigetabelle nobord right-first-left google-anno-skip")
+  st.markdown(section, unsafe_allow_html=True)
 
 # ---------- Main App ----------
 def main():
+    # ---------- Kurse ----------
+    kurse()
+
+    # ---------- Fonds / Aktien Übersicht ----------
     fonds_mapping = load_fonds_mapping()
     st.set_page_config(layout="wide")
     st.title("Fonds / Aktien Übersicht")
