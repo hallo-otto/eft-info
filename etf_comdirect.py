@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from matplotlib import pyplot as plt
 from numpy.ma.extras import row_stack
+import plotly.graph_objects as go
 
 # ---------- HEADERS ----------
 HEADERS = {
@@ -213,6 +214,30 @@ def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1
 
     svg_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
     return f'<object data="data:image/svg+xml;base64,{svg_base64}" type="image/svg+xml" style="width:{width}px; height:{height}px"></object>'
+
+# Funktion, um Balken zu generieren
+#.bar {display: inline-block;height: 100%;background-color: steelblue;width: 15%;  /* Breite des Balkens */margin: 0 2px;}
+# steelblue #4682B4
+# Firebrick #B22222
+def create_bar_chart(data):
+    min_val, max_val = min(data), max(data)
+    bars = ''
+    max_height = 65
+    # am Ende muss background-color: stehen
+    bar = "display:inline-block;width:10px;margin: 0 1px;vertical-align: bottom;background-color:"
+    # Vorgänger
+    vvalue = 0
+    for value in data:
+        # Berechne die Breite jedes Balkens basierend auf dem Wert
+        width_percentage = (value - min_val) / (max_val - min_val)
+        height = max_height * width_percentage
+        #bars += f'<div class="bar" style="width:{width_percentage}%;"></div>'
+        #bars += f'<div style="{bar}width:{width_percentage}%;">&nbsp;</div>'
+        color  = "steelblue" if vvalue <=  value else "firebrick"
+        bars  += f'<div title="{value}" style="{bar}{color};height:{height}px;">&nbsp;</div>'
+        vvalue = value
+    return bars
+
 # ---------- Kurse App ----------
 def kurse():
   st.title("Kurse Edelmetalle")
@@ -220,6 +245,18 @@ def kurse():
   html = load_page(url)
   soup = BeautifulSoup(html, "html.parser")
   section = soup.find("section", class_="sonstigetabelle nobord right-first-left google-anno-skip")
+
+  # Finde alle td-Tags mit data-sparkline
+  td_tags = soup.find_all('td', attrs={'data-sparkline': True})
+  for td in td_tags:
+    # Extrahiere die Daten aus dem data-sparkline Attribut
+    data = list(map(float, td['data-sparkline'].split(',')))
+    bars = create_bar_chart(data)
+    #td['class'] = 'sparkline'  # Stelle sicher, dass das td die richtige Klasse hat
+    td['style'] = "white-space: nowrap;margin:1px"
+    td.clear()  # Lösche den bisherigen Inhalt
+    td.append(BeautifulSoup(bars, 'html.parser'))  # Füge die Balken hinzu
+
   st.markdown(section, unsafe_allow_html=True)
 
 # ---------- Main App ----------
