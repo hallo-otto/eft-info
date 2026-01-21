@@ -219,7 +219,7 @@ def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1
 #.bar {display: inline-block;height: 100%;background-color: steelblue;width: 15%;  /* Breite des Balkens */margin: 0 2px;}
 # steelblue #4682B4
 # Firebrick #B22222
-def create_bar_chart(data):
+def create_bar_chart(i, data):
     min_val, max_val = min(data), max(data)
     bars = ''
     max_height = 65
@@ -231,10 +231,15 @@ def create_bar_chart(data):
         # Berechne die Breite jedes Balkens basierend auf dem Wert
         width_percentage = (value - min_val) / (max_val - min_val)
         height = max_height * width_percentage
+        tvalue = value if i==2 else value / 100
+        delta  = value - vvalue
+        prz    = 100 * delta / vvalue  if vvalue != 0 else 0
         #bars += f'<div class="bar" style="width:{width_percentage}%;"></div>'
         #bars += f'<div style="{bar}width:{width_percentage}%;">&nbsp;</div>'
         color  = "steelblue" if vvalue <=  value else "firebrick"
-        bars  += f'<div title="{value}" style="{bar}{color};height:{height}px;">&nbsp;</div>'
+        bars  += (f'<div title="{value} ({format_de(delta,2)} {format_de(prz)}%)" style="{bar}{color};height:{height}px;">'
+                  f'<span style="position:relative;font-size: 9px;top:-20px">{tvalue:.0f}</span>'
+                  '</div>')
         vvalue = value
     return bars
 
@@ -248,10 +253,12 @@ def kurse():
 
   # Finde alle td-Tags mit data-sparkline
   td_tags = soup.find_all('td', attrs={'data-sparkline': True})
+  i  = 0
   for td in td_tags:
     # Extrahiere die Daten aus dem data-sparkline Attribut
     data = list(map(float, td['data-sparkline'].split(',')))
-    bars = create_bar_chart(data)
+    i += 1
+    bars = create_bar_chart(i,data)
     #td['class'] = 'sparkline'  # Stelle sicher, dass das td die richtige Klasse hat
     td['style'] = "white-space: nowrap;margin:1px"
     td.clear()  # Lösche den bisherigen Inhalt
