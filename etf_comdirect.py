@@ -234,9 +234,10 @@ def create_bar_chart(i, data):
         tvalue = value if i==2 else value / 100
         delta  = value - vvalue
         prz    = 100 * delta / vvalue  if vvalue != 0 else 0
-        #bars += f'<div class="bar" style="width:{width_percentage}%;"></div>'
-        #bars += f'<div style="{bar}width:{width_percentage}%;">&nbsp;</div>'
         color  = "steelblue" if vvalue <=  value else "firebrick"
+        #bars  += (f'<div onclick="javascript:alert(\'{value} ({format_de(delta,2)} {format_de(prz)}%)\')" style="{bar}{color};height:{height}px;">'
+        #          f'<span style="position:relative;font-size: 9px;top:-20px">{tvalue:.0f}</span>'
+        #          '</div>')
         bars  += (f'<div title="{value} ({format_de(delta,2)} {format_de(prz)}%)" style="{bar}{color};height:{height}px;">'
                   f'<span style="position:relative;font-size: 9px;top:-20px">{tvalue:.0f}</span>'
                   '</div>')
@@ -263,9 +264,6 @@ def kurse():
     td['style'] = "white-space: nowrap;margin:1px"
     td.clear()  # Lösche den bisherigen Inhalt
     soup_bar = BeautifulSoup(bars, 'html.parser')
-    #for c in soup_bar.contents[0]:
-    #  c["data-title"] = "xxx"
-
     td.append(soup_bar)  # Füge die Balken hinzu
 
   st.markdown(section, unsafe_allow_html=True)
