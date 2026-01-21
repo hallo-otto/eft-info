@@ -262,7 +262,11 @@ def kurse():
     #td['class'] = 'sparkline'  # Stelle sicher, dass das td die richtige Klasse hat
     td['style'] = "white-space: nowrap;margin:1px"
     td.clear()  # Lösche den bisherigen Inhalt
-    td.append(BeautifulSoup(bars, 'html.parser'))  # Füge die Balken hinzu
+    soup_bar = BeautifulSoup(bars, 'html.parser')
+    #for c in soup_bar.contents[0]:
+    #  c["data-title"] = "xxx"
+
+    td.append(soup_bar)  # Füge die Balken hinzu
 
   st.markdown(section, unsafe_allow_html=True)
 
