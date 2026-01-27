@@ -5,6 +5,7 @@ from datetime import datetime
 import pandas as pd
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 from bs4 import BeautifulSoup
 from PIL import Image
 from matplotlib import pyplot as plt
@@ -220,29 +221,60 @@ def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1
 # steelblue #4682B4
 # Firebrick #B22222
 def create_bar_chart(i, data):
-    min_val, max_val = min(data), max(data)
-    bars = ''
+    # Differemzen
+    #data_diffs = [0] + [data[i] - data[i - 1] for i in range(1, len(data))]
+    #data_prz   = [0] + [100* (data[i] - data[i - 1]) / data[i - 1] for i in range(1, len(data))]
+    data_diffs = []
+    data_prz   = []
+    vvalue     = 0
+    for i, value in enumerate(data):
+        if i == 29:
+           a=0
+        data_diffs.append(0 if i == 0 else value - vvalue)
+        data_prz.append(0 if i == 0 else 100* (value - vvalue) / vvalue)
+        vvalue = value
+    # Min/Max
+    kurs_min, kurs_max = min(data), max(data)
+    diff_min, diff_max = min(data_diffs), max(data_diffs)
+    prz_min, prz_max   = min(data_prz), max(data_prz)
+    # div
+    bars_kurs = '<div class="bar_chart bar_kurs">'
+    bars_abs  = '<div class="bar_chart bar_abs" style="display: none;">'
+    bars_prz  = '<div class="bar_chart bar_prz" style="display: none;">'
+    # Chart Höhe
     max_height = 65
     # am Ende muss background-color: stehen
-    bar = "display:inline-block;width:10px;margin: 0 1px;vertical-align: bottom;background-color:"
+    bar = "display:inline-block;width:15px;margin: 0 1px;vertical-align: bottom;background-color:"
     # Vorgänger
     vvalue = 0
-    for value in data:
+    for value, diff, prz in zip(data, data_diffs, data_prz):
         # Berechne die Breite jedes Balkens basierend auf dem Wert
-        width_percentage = (value - min_val) / (max_val - min_val)
-        height = max_height * width_percentage
+        width_percentage = (value - kurs_min) / (kurs_max - kurs_min)
+        height_kurs = max_height * width_percentage
         tvalue = value if i==2 else value / 100
-        delta  = value - vvalue
-        prz    = 100 * delta / vvalue  if vvalue != 0 else 0
+        # Abweichungen
+        width_percentage = (diff - diff_min) / (diff_max - diff_min)
+        height_diff = max_height * width_percentage
+        # Prozent
+        width_percentage = (prz - prz_min) / (prz_max - prz_min)
+        height_prz = max_height * width_percentage
+        # Farbe
         color  = "steelblue" if vvalue <=  value else "firebrick"
-        #bars  += (f'<div onclick="javascript:alert(\'{value} ({format_de(delta,2)} {format_de(prz)}%)\')" style="{bar}{color};height:{height}px;">'
-        #          f'<span style="position:relative;font-size: 9px;top:-20px">{tvalue:.0f}</span>'
-        #          '</div>')
-        bars  += (f'<div title="{value} ({format_de(delta,2)} {format_de(prz)}%)" style="{bar}{color};height:{height}px;">'
+        #Balken
+        bars_kurs += (f'<div style="{bar}{color};height:{height_kurs}px;">'
                   f'<span style="position:relative;font-size: 9px;top:-20px">{tvalue:.0f}</span>'
                   '</div>')
+        bars_abs  += (f'<div style="{bar}{color};height:{height_diff}px;">'
+                  f'<span style="position:relative;font-size: 9px;top:-20px">{diff:.1f}</span>'
+                  '</div>')
+        bars_prz  += (f'<div style="{bar}{color};height:{height_prz}px;">'
+                  f'<span style="position:relative;font-size: 9px;top:-20px">{prz:.1f}</span>'
+                  '</div>')
         vvalue = value
-    return bars
+    bars_kurs += '</div>'
+    bars_abs  += '</div>'
+    bars_prz  += '</div>'
+    return bars_kurs + bars_abs + bars_prz
 
 # ---------- Kurse App ----------
 def kurse():
@@ -267,8 +299,31 @@ def kurse():
     td.append(soup_bar)  # Füge die Balken hinzu
 
   st.markdown(section, unsafe_allow_html=True)
-
+  chart_button()
 # ---------- Main App ----------
+
+def chart_button():
+  components.html("""
+      <div style="margin-bottom:10px;">
+          <button onclick="toggleClass('bar_kurs')">Kurse</button>
+          <button onclick="toggleClass('bar_abs')">Abs</button>
+          <button onclick="toggleClass('bar_prz')">Prz</button>
+      </div>
+
+    <script>
+        window.toggleClass = function(className) {
+            /* Ausschalten aller Charts */
+            el_all = window.parent.document.getElementsByClassName("bar_chart");
+            for (let el of el_all)
+                el.style.display =  "none";
+            /* Einschalten Auswahl */
+            el_bar = window.parent.document.getElementsByClassName(className);
+            for (let el of el_bar)
+                el.style.display =  "inline-block";
+        }
+    </script>
+  """, height=120)
+
 def main():
     # ---------- Kurse ----------
     kurse()
