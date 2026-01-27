@@ -227,11 +227,11 @@ def create_bar_chart(i, data):
     data_diffs = []
     data_prz   = []
     vvalue     = 0
-    for i, value in enumerate(data):
-        if i == 29:
-           a=0
-        data_diffs.append(0 if i == 0 else value - vvalue)
-        data_prz.append(0 if i == 0 else 100* (value - vvalue) / vvalue)
+    for j, value in enumerate(data):
+        #if j == 29:
+        #   a=0
+        data_diffs.append(0 if j == 0 else value - vvalue)
+        data_prz.append(0 if j == 0 else 100* (value - vvalue) / vvalue)
         vvalue = value
     # Min/Max
     kurs_min, kurs_max = min(data), max(data)
