@@ -347,7 +347,7 @@ def chart_button():
             transition: filter 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
           }
           button:hover {
-            filter: brightness(0.92);
+            filter: brightness(0.88);
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
           }
           .active {
