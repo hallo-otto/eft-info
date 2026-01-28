@@ -242,7 +242,7 @@ def create_bar_chart(i, data):
     # Chart Höhe
     max_height = 65
     # am Ende muss background-color: stehen
-    bar = "display:inline-block;width:15px;margin: 0 1px;vertical-align: bottom;background-color:"
+    bar = "display:inline-block;width:16px;margin: 0 1px;vertical-align: bottom;background-color:"
     # Vorgänger
     vvalue = 0
     k      = 0
@@ -292,10 +292,12 @@ def kurse():
   html = load_page(url)
   soup = BeautifulSoup(html, "html.parser")
   # Tabelle in der die Grafik eingeführt wird
-  section = soup.find("section", class_="sonstigetabelle nobord right-first-left google-anno-skip")
+  #section = soup.find("section", class_="sonstigetabelle nobord right-first-left google-anno-skip")
+  table = soup.find("table",  id="table-sparkline")
+
 
   # Überschrift
-  th_text = section.find("th", string="Verlauf 30 Tage")
+  th_text = table.find("th", string="Verlauf 30 Tage")
 
   span1 = soup.new_tag("span", **{"class": "bar_chart bar_kurs", "style": "margin-left:5px"})
   span1.string = "Kurse"
@@ -309,9 +311,14 @@ def kurse():
   th_text.append(span1)
   th_text.append(span2)
   th_text.append(span3)
+  # Splte löschen
+  for row in table.find_all("tr"):
+      columns = row.find_all(["th","td"])
+      columns[2].decompose()
+      columns[3].decompose()
 
   # Finde alle td-Tags mit data-sparkline
-  td_tags = section.find_all('td', attrs={'data-sparkline': True})
+  td_tags = table.find_all('td', attrs={'data-sparkline': True})
   # Durchlauf aller td
   i  = 0
   for td in td_tags:
@@ -325,13 +332,13 @@ def kurse():
     soup_bar = BeautifulSoup(bars, 'html.parser')
     td.append(soup_bar)  # Füge die Balken hinzu
 
-  st.markdown(section, unsafe_allow_html=True)
+  st.markdown(table, unsafe_allow_html=True)
   chart_button()
 # ---------- Main App ----------
 
 def chart_button():
   components.html("""
-      <div style="margin-bottom:1px;">
+      <div>
           <button class="active" id="bt_bar_kurs" onclick="toggleClass('bar_kurs')">Kurse</button>
           <button id="bt_bar_abs" onclick="toggleClass('bar_abs')">Abs</button>
           <button id="bt_bar_prz" onclick="toggleClass('bar_prz')">Prz</button>
