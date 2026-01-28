@@ -333,8 +333,8 @@ def chart_button():
   components.html("""
       <div style="margin-bottom:1px;">
           <button class="active" id="bt_bar_kurs" onclick="toggleClass('bar_kurs')">Kurse</button>
-          <button id="bt_bar_abs"  onclick="toggleClass('bar_abs')">Abs</button>
-          <button id="bt_bar_prz"  onclick="toggleClass('bar_prz')">Prz</button>
+          <button id="bt_bar_abs" onclick="toggleClass('bar_abs')">Abs</button>
+          <button id="bt_bar_prz" onclick="toggleClass('bar_prz')">Prz</button>
       </div>
 
       <style>
