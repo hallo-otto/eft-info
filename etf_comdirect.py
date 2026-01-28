@@ -295,7 +295,6 @@ def kurse():
   #section = soup.find("section", class_="sonstigetabelle nobord right-first-left google-anno-skip")
   table = soup.find("table",  id="table-sparkline")
 
-
   # Überschrift
   th_text = table.find("th", string="Verlauf 30 Tage")
 
@@ -314,6 +313,7 @@ def kurse():
   # Splte löschen
   for row in table.find_all("tr"):
       columns = row.find_all(["th","td"])
+      columns[1]["style"] = "white-space: nowrap"
       columns[2].decompose()
       columns[3].decompose()
 
