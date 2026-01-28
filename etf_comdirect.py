@@ -310,7 +310,7 @@ def kurse():
   th_text.append(span1)
   th_text.append(span2)
   th_text.append(span3)
-  # Splte löschen
+  # Spalten löschen
   for row in table.find_all("tr"):
       columns = row.find_all(["th","td"])
       columns[1]["style"] = "white-space: nowrap"
