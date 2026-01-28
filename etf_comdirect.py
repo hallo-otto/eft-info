@@ -228,8 +228,6 @@ def create_bar_chart(i, data):
     data_prz   = []
     vvalue     = 0
     for j, value in enumerate(data):
-        #if j == 29:
-        #   a=0
         data_diffs.append(0 if j == 0 else value - vvalue)
         data_prz.append(0 if j == 0 else 100* (value - vvalue) / vvalue)
         vvalue = value
@@ -247,29 +245,40 @@ def create_bar_chart(i, data):
     bar = "display:inline-block;width:15px;margin: 0 1px;vertical-align: bottom;background-color:"
     # Vorgänger
     vvalue = 0
+    k      = 0
     for value, diff, prz in zip(data, data_diffs, data_prz):
+        k += 1
         # Berechne die Breite jedes Balkens basierend auf dem Wert
-        width_percentage = (value - kurs_min) / (kurs_max - kurs_min)
-        height_kurs = max_height * width_percentage
+        fak_kurs    = max_height / (kurs_max - kurs_min)
+        height_kurs = fak_kurs * (value - kurs_min)
         tvalue = value if i==2 else value / 100
         # Abweichungen
-        width_percentage = (diff - diff_min) / (diff_max - diff_min)
-        height_diff = max_height * width_percentage
+        fak_diff    = max_height / (diff_max - diff_min)
+        height_diff = fak_diff * (diff - diff_min)
+        bottom_diff = 0
+        if diff_min <  0:
+          height_diff = fak_diff * abs(diff)
+          bottom_diff = fak_diff *  (-diff_min) if diff >= 0 else fak_diff * (-diff_min + diff)
         # Prozent
-        width_percentage = (prz - prz_min) / (prz_max - prz_min)
-        height_prz = max_height * width_percentage
+        fak_prz = max_height / (prz_max - prz_min)
+        height_prz = fak_prz * (prz - prz_min)
+        bottom_prz  = 0
+        if prz_min <  0:
+          height_prz = fak_prz * abs(prz)
+          bottom_prz = fak_prz *  (-prz_min) if prz >= 0 else fak_prz * (-prz_min + prz)
         # Farbe
         color  = "steelblue" if vvalue <=  value else "firebrick"
         #Balken
         bars_kurs += (f'<div style="{bar}{color};height:{height_kurs}px;">'
                   f'<span style="position:relative;font-size: 9px;top:-20px">{tvalue:.0f}</span>'
                   '</div>')
-        bars_abs  += (f'<div style="{bar}{color};height:{height_diff}px;">'
-                  f'<span style="position:relative;font-size: 9px;top:-20px">{diff:.1f}</span>'
-                  '</div>')
-        bars_prz  += (f'<div style="{bar}{color};height:{height_prz}px;">'
-                  f'<span style="position:relative;font-size: 9px;top:-20px">{prz:.1f}</span>'
-                  '</div>')
+        if k > 1 :
+          bars_abs  += (f'<div style="{bar}{color};height:{height_diff}px;margin-bottom:{bottom_diff}px">'
+                    f'<span style="position:relative;font-size: 9px;top:-20px">{diff:.0f}</span>'
+                    '</div>')
+          bars_prz  += (f'<div style="{bar}{color};height:{height_prz}px;margin-bottom:{bottom_prz}px">'
+                    f'<span style="position:relative;font-size: 9px;top:-20px">{format_de(prz,1)}</span>'
+                    '</div>')
         vvalue = value
     bars_kurs += '</div>'
     bars_abs  += '</div>'
@@ -282,10 +291,28 @@ def kurse():
   url = "https://www.gold.de/kurse/"
   html = load_page(url)
   soup = BeautifulSoup(html, "html.parser")
+  # Tabelle in der die Grafik eingeführt wird
   section = soup.find("section", class_="sonstigetabelle nobord right-first-left google-anno-skip")
 
+  # Überschrift
+  th_text = section.find("th", string="Verlauf 30 Tage")
+
+  span1 = soup.new_tag("span", **{"class": "bar_chart bar_kurs", "style": "margin-left:5px"})
+  span1.string = "Kurse"
+
+  span2 = soup.new_tag("span", **{"class": "bar_chart bar_abs", "style": "display: none;margin-left:5px"})
+  span2.string = "Absolut"
+
+  span3 = soup.new_tag("span", **{"class": "bar_chart bar_prz", "style": "display: none;margin-left:5px"})
+  span3.string = "Prozent"
+
+  th_text.append(span1)
+  th_text.append(span2)
+  th_text.append(span3)
+
   # Finde alle td-Tags mit data-sparkline
-  td_tags = soup.find_all('td', attrs={'data-sparkline': True})
+  td_tags = section.find_all('td', attrs={'data-sparkline': True})
+  # Durchlauf aller td
   i  = 0
   for td in td_tags:
     # Extrahiere die Daten aus dem data-sparkline Attribut
@@ -304,14 +331,40 @@ def kurse():
 
 def chart_button():
   components.html("""
-      <div style="margin-bottom:10px;">
-          <button onclick="toggleClass('bar_kurs')">Kurse</button>
-          <button onclick="toggleClass('bar_abs')">Abs</button>
-          <button onclick="toggleClass('bar_prz')">Prz</button>
+      <div style="margin-bottom:1px;">
+          <button class="active" id="bt_bar_kurs" onclick="toggleClass('bar_kurs')">Kurse</button>
+          <button id="bt_bar_abs"  onclick="toggleClass('bar_abs')">Abs</button>
+          <button id="bt_bar_prz"  onclick="toggleClass('bar_prz')">Prz</button>
       </div>
 
-    <script>
+      <style>
+          button {
+            width:55px;
+            border: 1px solid #d1d5db;
+            background: #e5e7eb;   /* helles Grau */
+            color: #111827;        /* fast schwarz */
+            cursor: pointer;
+            transition: filter 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+          }
+          button:hover {
+            filter: brightness(1.06);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+          }
+          .active {
+            filter: brightness(0.85);  /* dunkler */
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+          }
+      </style>
+
+      <script>
         window.toggleClass = function(className) {
+            /* Löschen der aktiv class */
+            bt_all = this.document.getElementsByTagName("button");
+            for (let b of bt_all)
+                b.classList.remove("active");
+            /* setzen der aktiv class */
+            bt = this.document.getElementById("bt_" + className);
+            bt.classList.add("active");
             /* Ausschalten aller Charts */
             el_all = window.parent.document.getElementsByClassName("bar_chart");
             for (let el of el_all)
@@ -321,7 +374,7 @@ def chart_button():
             for (let el of el_bar)
                 el.style.display =  "inline-block";
         }
-    </script>
+      </script>
   """, height=120)
 
 def main():
