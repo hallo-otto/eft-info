@@ -66,6 +66,11 @@ def load_fonds_mapping():
           "kurs": [to_float(row.get("Kurs1")), to_float(row.get("Kurs2"))],
           "EUR":  to_float(row.get("EUR"))
          }
+         # nur wenn es ein Datum3 gibt
+         datum3 = row.get("Datum3", "")
+         if not pd.isna(datum3) and str(datum3).strip() != "":
+            mapping[isin]["date"].append(datum3)
+            mapping[isin]["kurs"].append(to_float(row.get("Kurs3")))
       except (TypeError, ValueError):
          print("Error", row, TypeError, ValueError)
 
@@ -423,9 +428,18 @@ def main():
           color = "green" if diff >= 0 else "red"
 
           svg = sparkline(info["date"], info["kurs"], kurs) if kurs else ""
-          text = " | ".join([
-            f"{d} ({format_de(k,2)})" for d, k in zip(info["date"], info["kurs"])
-          ])
+          #text = " | ".join([
+          #  f"{d} ({format_de(k,2)})" for d, k in zip(info["date"], info["kurs"])
+          #])
+
+          # letze Wert fett
+          text_parts = [
+            f"{d} ({format_de(k, 2)})"
+            for d, k in zip(info["date"], info["kurs"])
+          ]
+          if text_parts:
+            text_parts[-1] = f"<b>{text_parts[-1]}</b>"
+          text = " | ".join(text_parts)
 
           st.markdown(
             f"## <div style='display: inline-block;white-space: nowrap;font-size: 22px'>"
@@ -465,14 +479,16 @@ def main():
                       info["date"][1] if len(info["date"]) >1 else None,
                       info["kurs"][1] if len(info["kurs"]) >1 else None,
                       info["date"][2] if len(info["date"]) >2 else None,
-                      info["kurs"][2] if len(info["kurs"]) >2 else None
+                      info["kurs"][2] if len(info["kurs"]) >2 else None,
+                      info["date"][3] if len(info["date"]) >3 else None,
+                      info["kurs"][3] if len(info["kurs"]) >3 else None
                      ])
     return liste
 
 # ---------- Tabelle ----------
 def liste_table(liste):
     if not liste: return
-    df = pd.DataFrame(liste, columns=["ISIN","URL", "Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3"])
+    df = pd.DataFrame(liste, columns=["ISIN","URL", "Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3","Datum4","Kurs4"])
 
     # Farbe für Gewinn / Verlust in Tabelle
     def color_diff(val):
@@ -505,7 +521,8 @@ def liste_table(liste):
         "Prozent je Jahr": lambda x: format_de(x, 2),  # 2 Dezimalstellen
         "Kurs1":   lambda x: format_de(x, 2),
         "Kurs2":   lambda x: format_de(x, 2),
-        "Kurs3":   lambda x: format_de(x, 2)
+        "Kurs3":   lambda x: format_de(x, 2),
+        "Kurs4":   lambda x: format_de(x, 2)
       })
       .applymap(color_diff, subset=["Gewinn"]),
       column_config = {
