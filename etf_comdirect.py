@@ -537,3 +537,5 @@ def liste_table(liste):
 if __name__ == "__main__":
     l = main()
     liste_table(l)
+    st.components.v1.iframe(src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898",height=500)
+    st.components.v1.iframe(src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830",height=500)
