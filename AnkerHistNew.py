@@ -256,10 +256,12 @@ class AnkerSolixInfo:
   # Monatsdiragramme
   # ----------------
   async def ausgabe_hist_monat(self):
+    phm = st.empty()
+    phm.markdown("Monatsdiagramme")
     src1 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
     src2 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
-    st.components.v1.iframe(src=src1,height=500)
-    st.components.v1.iframe(src=src2,height=500)
+    phm.components.v1.iframe(src=src1,height=500)
+    phm.components.v1.iframe(src=src2,height=500)
 # ----------------
 # Test
 # ----------------
@@ -316,6 +318,6 @@ async def start():
       a = st.session_state["a"]
       st.multiselect(label="Kurve auswählen:",options=a.kurven,default=a.kurven,key="selected_curves")
       await a.ausgabe_graph()
-      a.ausgabe_hist_monat()
+      await a.ausgabe_hist_monat()
 
 asyncio.run(start())
