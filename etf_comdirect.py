@@ -533,9 +533,28 @@ def liste_table(liste):
          #),
       },hide_index=True
     )
+
+# ----------------
+# Monatsdiragramme
+# ----------------
+def ausgabe_hist_monat():
+     src1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
+     src2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
+
+     html = f"""<h2>Monatsdiagramme</h2>
+           <div style="display:flex; gap:0px; width:100%;">
+               <iframe src="{src1}"
+                       style="flex:1; height:600px; border:none;min-width:600px;">
+               </iframe>
+               <iframe src="{src2}"
+                       style="flex:1; height:600px; border:none;min-width:600px;">
+               </iframe>
+           </div>"""
+
+     st.markdown(html, unsafe_allow_html=True)
+
 # ---------- App starten ----------
 if __name__ == "__main__":
     l = main()
     liste_table(l)
-    st.components.v1.iframe(src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898",height=500)
-    st.components.v1.iframe(src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830",height=500)
+    ausgabe_hist_monat()
