@@ -10,7 +10,7 @@ import math
 import pandas as pd
 from matplotlib.widgets import CheckButtons
 from tornado.options import options
-
+import streamlit.components.v1 as components
 # @st.cache_resource
 
 class AnkerSolixInfo:
@@ -27,6 +27,7 @@ class AnkerSolixInfo:
     # Kurven Auswahl, muss mit data.type übereinstimmen
     self.kurven  = ["solar production", "home usage", "solarbank", "grid export"]
     self.graph_container = st.container()
+    #st.set_page_config(layout="wide")
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
@@ -255,15 +256,33 @@ class AnkerSolixInfo:
   # Monatsdiragramme
   # ----------------
   async def ausgabe_hist_monat(self):
+    src1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
+    src2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
+
     with self.graph_container:
-      st.title("Monatsdiagramme")
-      src1 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
-      src2 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
-      #col1, col2 = st.columns(2)
-      #col1.st.components.v1.iframe(src=src1,height=500)
-      #col2.st.components.v1.iframe(src=src2,height=500)
-      st.components.v1.iframe(src=src1,height=500)
-      st.components.v1.iframe(src=src2,height=500)
+      # zu schmal
+      #st.markdown("## Monatsdiagramme")
+      #col1, col2 = st.columns([5, 5], gap="large")
+      #with col1:
+      #  st.markdown(f"<iframe height='500' style='display:block;border:none;width:''600px;''' src='{src1}'></iframe>"
+      #              ,unsafe_allow_html=True)
+
+      #with col2:
+      #  st.markdown(f"<iframe height='500' style='display:block;border:none;width:''600px;''' src='{src2}'></iframe>",
+      #              unsafe_allow_html=True)
+
+      html = f"""<h2>Monatsdiagramme</h2>
+         <div style="display:flex; gap:0px; width:100%;">
+             <iframe src="{src1}"
+                     style="flex:1; height:600px; border:none;min-width:600px;">
+             </iframe>
+             <iframe src="{src2}"
+                     style="flex:1; height:600px; border:none;min-width:600px;">
+             </iframe>
+         </div>"""
+
+      st.markdown(html, unsafe_allow_html=True)
+
 # ----------------
 # Test
 # ----------------
