@@ -26,6 +26,7 @@ class AnkerSolixInfo:
     self.api     = AnkerSolixApi(user, pw, country, session)  # einmalig speichern
     # Kurven Auswahl, muss mit data.type übereinstimmen
     self.kurven  = ["solar production", "home usage", "solarbank", "grid export"]
+    self.graph_container = st.container()
 
   async def update_sites(self):
     # Beispiel: await irgendwas mit self.session
@@ -125,9 +126,7 @@ class AnkerSolixInfo:
     ph2 = st.empty()
     ph3 = st.empty()
 
-    graph_container = st.container()
-
-    with graph_container:
+    with self.graph_container:
       if len(selected) == 0:
          ph1.error("keine Kurve ausgewählt!")
          ph2.write("")
@@ -256,12 +255,13 @@ class AnkerSolixInfo:
   # Monatsdiragramme
   # ----------------
   async def ausgabe_hist_monat(self):
-    phm = st.empty()
-    phm.markdown("Monatsdiagramme")
-    src1 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
-    src2 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
-    phm.components.v1.iframe(src=src1,height=500)
-    phm.components.v1.iframe(src=src2,height=500)
+    with self.graph_container:
+      st.titel("Monatsdiagramme")
+      src1 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
+      src2 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
+      col1, col2 = st.columns(2)
+      col1.st.components.v1.iframe(src=src1,height=500)
+      col2.st.ccomponents.v1.iframe(src=src2,height=500)
 # ----------------
 # Test
 # ----------------
