@@ -256,12 +256,14 @@ class AnkerSolixInfo:
   # ----------------
   async def ausgabe_hist_monat(self):
     with self.graph_container:
-      st.titel("Monatsdiagramme")
+      st.title("Monatsdiagramme")
       src1 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
       src2 ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
-      col1, col2 = st.columns(2)
-      col1.st.components.v1.iframe(src=src1,height=500)
-      col2.st.ccomponents.v1.iframe(src=src2,height=500)
+      #col1, col2 = st.columns(2)
+      #col1.st.components.v1.iframe(src=src1,height=500)
+      #col2.st.components.v1.iframe(src=src2,height=500)
+      st.components.v1.iframe(src=src1,height=500)
+      st.components.v1.iframe(src=src2,height=500)
 # ----------------
 # Test
 # ----------------
