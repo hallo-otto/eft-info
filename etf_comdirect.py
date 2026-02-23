@@ -64,6 +64,7 @@ def load_fonds_mapping():
           "kaufwert": to_float(row.get("Kaufwert")),
           "date": [row.get("Datum1", ""), row.get("Datum2", "")],
           "kurs": [to_float(row.get("Kurs1")), to_float(row.get("Kurs2"))],
+          "metall": [to_float(row.get("Metall1")), to_float(row.get("Metall2"))],
           "EUR":  to_float(row.get("EUR"))
          }
          # nur wenn es ein Datum3 gibt
@@ -71,6 +72,13 @@ def load_fonds_mapping():
          if not pd.isna(datum3) and str(datum3).strip() != "":
             mapping[isin]["date"].append(datum3)
             mapping[isin]["kurs"].append(to_float(row.get("Kurs3")))
+            mapping[isin]["metall"].append(to_float(row.get("Metall3")))
+         # nur wenn es ein Datum4 gibt
+         datum4 = row.get("Datum4", "")
+         if not pd.isna(datum4) and str(datum4).strip() != "":
+            mapping[isin]["date"].append(datum4)
+            mapping[isin]["kurs"].append(to_float(row.get("Kurs4")))
+            mapping[isin]["metall"].append(to_float(row.get("Metall4")))
       except (TypeError, ValueError):
          print("Error", row, TypeError, ValueError)
 
