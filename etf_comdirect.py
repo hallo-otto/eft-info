@@ -203,7 +203,18 @@ def load_kurs(html, info):
             info["kurs"].append(aktueller_kurs)
             info["date"].append(datetime.today().strftime("%d.%m.%Y"))
     whg = whg_span.get_text(strip=True) if whg_span else ""
-    return aktueller_kurs, whg, diff, diffJahr, prz, przJahr
+    # ################################
+    # ermittel den 1 Jahres Performance
+    # <table id="fund-etf-index-comparison">
+    # <td data-label="1 Jahr" class="table__column--top"><span class=" color--cd-positive">+56,3&nbsp;%</span></td> #
+    # ################################
+    try:
+      value = soup.select_one('#fund-etf-index-comparison td[data-label="1 Jahr"] span').get_text(strip=True)
+      perfJahr = float(value.replace("+", "").replace("%", "").replace(",", "."))
+    except (AttributeError, ValueError):
+      perfJahr = None
+
+    return aktueller_kurs, whg, diff, diffJahr, prz, przJahr, perfJahr
 
 # ---------- Sparkline ----------
 def sparkline(dates, values, aktueller_kurs, width=80, height=20, line_color="#1f77b4", mark_last=True):
@@ -428,7 +439,7 @@ def main():
             st.markdown(f"<span style='color:red'>Fehler beim Laden: {isin}</span>", unsafe_allow_html=True)
             continue
 
-        kurs, whg, diff, diffJahr, prz, przJahr = load_kurs(html, info)
+        kurs, whg, diff, diffJahr, prz, przJahr, perfJahr = load_kurs(html, info)
         id_notation, stand, boerse  = get_id_notation(html)
 
         if isinstance(info["stueck"], float) and isinstance(info["kaufwert"], float) and isinstance(info["date"][0], str):
@@ -481,7 +492,7 @@ def main():
         # Nie f"{wert:.2f}" beim Befüllen des DataFrames für Zahlen verwenden.
         # Stattdessen .format() oder .applymap() im Styler verwenden.
         liste.append([isin, url,
-                      info['name'], diff, diffJahr, prz, przJahr,
+                      info['name'], diff, diffJahr, prz, przJahr, perfJahr,
                       info["date"][0] if len(info["date"]) >0 else None,
                       info["kurs"][0] if len(info["kurs"]) >0 else None,
                       info["date"][1] if len(info["date"]) >1 else None,
@@ -496,7 +507,7 @@ def main():
 # ---------- Tabelle ----------
 def liste_table(liste):
     if not liste: return
-    df = pd.DataFrame(liste, columns=["ISIN","URL", "Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3","Datum4","Kurs4"])
+    df = pd.DataFrame(liste, columns=["ISIN","URL", "Name","Gewinn","Gewinn je Jahr","Prozent","Prozent je Jahr","Performance Jahr","Datum1","Kurs1","Datum2","Kurs2","Datum3","Kurs3","Datum4","Kurs4"])
 
     # Farbe für Gewinn / Verlust in Tabelle
     def color_diff(val):
@@ -523,10 +534,11 @@ def liste_table(liste):
     st.dataframe(
       df_sorted.style
       .format({
-        "Gewinn":  lambda x: format_de(x, 0),          # keine Dezimalstellen
-        "Gewinn je Jahr": lambda x: format_de(x, 0),   # 2 Dezimalstellen
-        "Prozent": lambda x: format_de(x, 2),          # 2 Dezimalstellen
-        "Prozent je Jahr": lambda x: format_de(x, 2),  # 2 Dezimalstellen
+        "Gewinn":           lambda x: format_de(x, 0),  # keine Dezimalstellen
+        "Gewinn je Jahr":   lambda x: format_de(x, 0),  # 2 Dezimalstellen
+        "Prozent":          lambda x: format_de(x, 2),  # 2 Dezimalstellen
+        "Prozent je Jahr":  lambda x: format_de(x, 2),  # 2 Dezimalstellen
+        "Performance Jahr": lambda x: format_de(x, 1),
         "Kurs1":   lambda x: format_de(x, 2),
         "Kurs2":   lambda x: format_de(x, 2),
         "Kurs3":   lambda x: format_de(x, 2),
@@ -549,7 +561,7 @@ def ausgabe_hist_monat():
      src1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
      src2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
 
-     html = f"""<h2>Monatsdiagramme</h2>
+     html = f"""<a href='https://docs.google.com/spreadsheets/d/1zMonCEgVxU1AuKPUJ0zDL8RAPewOkyqw-RTt_c6OdW0/edit?usp=sharing'><h2>Monatsdiagramme</h2></a>
            <div style="display:flex; gap:0px; width:100%;">
                <iframe src="{src1}"
                        style="flex:1; height:600px; border:none;min-width:600px;">
