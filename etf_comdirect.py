@@ -561,7 +561,7 @@ def ausgabe_hist_monat():
      src1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=1247850898"
      src2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVWRS2FvPXn8JMnACaMeb4BRPGTdwrLQhl5K2-Y3Q1pkMoLNmrl3oKBjfkI2ceT0FYhu41MkA2x0Hk/pubchart?oid=331600830"
 
-     html = f"""<a href='https://docs.google.com/spreadsheets/d/1zMonCEgVxU1AuKPUJ0zDL8RAPewOkyqw-RTt_c6OdW0/edit?usp=sharing'><h2>Monatsdiagramme</h2></a>
+     html = f"""<a href='https://docs.google.com/spreadsheets/d/1zMonCEgVxU1AuKPUJ0zDL8RAPewOkyqw-RTt_c6OdW0'><h2>Monatsdiagramme</h2></a>
            <div style="display:flex; gap:0px; width:100%;">
                <iframe src="{src1}"
                        style="flex:1; height:600px; border:none;min-width:600px;">
