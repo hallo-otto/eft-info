@@ -270,7 +270,7 @@ class AnkerSolixInfo:
       #with col2:
       #  st.markdown(f"<iframe height='500' style='display:block;border:none;width:''600px;''' src='{src2}'></iframe>",
       #              unsafe_allow_html=True)
-      html = f"""<a href='https://docs.google.com/spreadsheets/d/1zMonCEgVxU1AuKPUJ0zDL8RAPewOkyqw-RTt_c6OdW0/edit?usp=sharing'><h2>Monatsdiagramme</h2></a>
+      html = f"""<a href='https://docs.google.com/spreadsheets/d/1zMonCEgVxU1AuKPUJ0zDL8RAPewOkyqw-RTt_c6OdW0'><h2>Monatsdiagramme</h2></a>
          <div style="display:flex; gap:0px; width:100%;">
              <iframe src="{src1}"
                      style="flex:1; height:600px; border:none;min-width:600px;">
